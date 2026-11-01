@@ -32,6 +32,7 @@
 //     THUGPRO's messages 155-159 (a later protocol layer).
 
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { crc32 } from "node:zlib";
 import { Reader, Writer } from "thug2-level-converter-core/level_port/binio.ts";
 import * as prx from "thug2-level-converter-core/level_port/prx.ts";
@@ -40,7 +41,6 @@ import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-conver
 import * as tex from "thug2-level-converter-core/level_port/tex.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
-import { pyJoin } from "thug2-level-converter-core/lib/py.ts";
 import type * as compat from "thug2-thugpro-compat/profile.ts";
 import { encodeValue, nameValue } from "./thugpro_edits.ts";
 
@@ -72,7 +72,7 @@ export interface ZoneNew {
     needs?: Record<string, string[]>; // a command THUG2 hasn't (THUGPRO's own C++) -> the scripts left out for it
 }
 
-export const DEFAULT_THUGPRO = pyJoin(process.env.LOCALAPPDATA ?? "", "THUG Pro");
+export const DEFAULT_THUGPRO = path.join(process.env.LOCALAPPDATA ?? "", "THUG Pro");
 
 // --- CRCs of THUGPRO's items (what the profile checks) -----------------------------------------------------------
 
@@ -146,7 +146,7 @@ export interface ThugproLevel {
 const findFile = (folder: string, name: string): string | null => {
     try {
         const f = fs.readdirSync(folder).find((x) => x.toLowerCase() === name.toLowerCase());
-        return f === undefined ? null : pyJoin(folder, f);
+        return f === undefined ? null : path.join(folder, f);
     } catch {
         return null;
     }
@@ -156,7 +156,7 @@ const findFile = (folder: string, name: string): string | null => {
 // when the install hasn't it. `globals`: also THUGPRO's qb\thugpro_qb.prx scripts (its own and its versions of
 // THUG2's).
 export function loadThugproLevel(thugpro: string, key: string, globals = true): ThugproLevel | null {
-    const pre = pyJoin(thugpro, "data", "pre");
+    const pre = path.join(thugpro, "data", "pre");
     const scriptsPrx = findFile(pre, `${key}_scripts.prx`);
     if (scriptsPrx === null) return null;
     const own = (ext: string) => (n: string) => n.toLowerCase() === `levels\\${key}\\${key}${ext}`.toLowerCase();

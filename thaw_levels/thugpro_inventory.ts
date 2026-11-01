@@ -12,6 +12,7 @@
 //   node thaw_levels/thugpro_inventory.ts [levels...] [--thaw C:\Games\THAW] [--thugpro <dir>] [--json out]
 
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { parseArgs } from "node:util";
 import * as nodes from "thug2-level-converter-core/level_port/nodes.ts";
 import * as prx from "thug2-level-converter-core/level_port/prx.ts";
@@ -21,16 +22,7 @@ import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
 import { helpFromHeader } from "thug2-level-converter-core/lib/cli.ts";
 import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
-import {
-    hex8,
-    isMain,
-    print,
-    pyExit,
-    pyJoin,
-    pyJsonDumps,
-    runMain,
-    writeTextPy,
-} from "thug2-level-converter-core/lib/py.ts";
+import { hex8, isMain, print, pyExit, pyJsonDumps, runMain, writeTextPy } from "thug2-level-converter-core/lib/py.ts";
 import * as thaw from "../thaw/thaw.ts";
 import {
     COMPAT,
@@ -45,7 +37,7 @@ import {
 import { nodeArray } from "./thugpro_compare.ts";
 import { SYSTEMATIC } from "./thugpro_extract.ts";
 
-const DEFAULT_THUGPRO = pyJoin(process.env.LOCALAPPDATA ?? "", "THUG Pro");
+const DEFAULT_THUGPRO = path.join(process.env.LOCALAPPDATA ?? "", "THUG Pro");
 const TOLERANCE = 0.1;
 const ANGLE_TOLERANCE = 0.001;
 const EXAMPLES = 6;
@@ -396,7 +388,7 @@ function compareOurs(zone: string, levels: string, thugpro: string, names: Names
         const l = name.toLowerCase();
         return l.startsWith(`${low}_`) && MULTIPLAYER_NAME.test(l.slice(low.length + 1)) ? l.slice(low.length + 1) : l;
     };
-    const qbFile = pyJoin(levels, mine, `${mine}.qb`);
+    const qbFile = path.join(levels, mine, `${mine}.qb`);
     if (!fs.existsSync(qbFile)) pyExit(`not converted: ${qbFile}`);
     const [ours, ourNames] = nodeArray(fs.readFileSync(qbFile), qbFile);
     for (const [k, v] of ourNames) if (!names.has(k)) names.set(k, v);
@@ -438,7 +430,7 @@ function compareOurs(zone: string, levels: string, thugpro: string, names: Names
     // (the scene first: TrickObject on geometry without a sector is our port's crash guard)
     const sceneOf = (file: string): Set<number> =>
         new Set(thug2Scene.readScene(fs.readFileSync(file), file).sectors.map((s) => s.checksum));
-    const ourScene = sceneOf(pyJoin(levels, mine, `${mine}.scn.xbx`));
+    const ourScene = sceneOf(path.join(levels, mine, `${mine}.scn.xbx`));
     const objects = new Set<number>(); // our LevelObjects: collision in their own space
     for (const n of ours) {
         const v = n instanceof Struct ? n.get("Name") : undefined;
@@ -492,7 +484,7 @@ function compareOurs(zone: string, levels: string, thugpro: string, names: Names
         for (const o of thug2Col.readCol(fs.readFileSync(file), file).objects) m.set(o.checksum, o);
         return m;
     };
-    const ourCol = colOf(pyJoin(levels, mine, `${mine}.col.xbx`));
+    const ourCol = colOf(path.join(levels, mine, `${mine}.col.xbx`));
     const tpCol = new Map<number, thug2Col.ColObject>();
     const colPrx = findPath(thugpro, "data", "pre", `${key}col.prx`);
     for (const [, d] of colPrx === null ? [] : prx.entries(colPrx, (n) => n.toLowerCase().endsWith(".col.xbx"))) {

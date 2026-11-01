@@ -18,6 +18,7 @@
 //     (TP-4: rewrites thug2-thugpro-compat/thugpro/thaw_levels.json `spawns` / `spawns_not_applied` - extractSpawns)
 
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { parseArgs } from "node:util";
 import * as colCheck from "thug2-level-converter-core/level_port/col_check.ts";
 import * as pedsCars from "thug2-level-converter-core/level_port/peds_cars.ts";
@@ -35,7 +36,6 @@ import {
     isMain,
     print,
     pyExit,
-    pyJoin,
     pyJsonDumps,
     pyRound,
     runMain,
@@ -93,7 +93,7 @@ export {
 
 // THUGPRO's names for the levels it renamed (its data\pre file names; the others are the zone's): to find its files.
 const THUGPRO_NAMES = COMPAT.levelNames; // (thug2-thugpro-compat/thugpro/thaw_levels.json)
-const DEFAULT_THUGPRO = pyJoin(process.env.LOCALAPPDATA ?? "", "THUG Pro");
+const DEFAULT_THUGPRO = path.join(process.env.LOCALAPPDATA ?? "", "THUG Pro");
 const prxFile = (folder: string, wanted: string): string | null => findPath(folder, "data", "pre", wanted);
 
 export type Result = Record<string, unknown> & { zone: string; level: string };
@@ -102,7 +102,7 @@ export function compare(zone: string, oursDir: string, thugpro: string): Result 
     const mine = levelName(zone);
     const key = THUGPRO_NAMES.get(zone) ?? zone.toLowerCase();
     const out: Result = { zone, level: mine, thugpro_level: key, same_name: mine === key };
-    const oursQb = pyJoin(oursDir, mine, `${mine}.qb`);
+    const oursQb = path.join(oursDir, mine, `${mine}.qb`);
     if (!fs.existsSync(oursQb)) {
         out.error = `not converted (${oursQb})`;
         return out;
@@ -206,7 +206,7 @@ export function compare(zone: string, oursDir: string, thugpro: string): Result 
     out.ctf_ours = CTF_NAMES.filter((c) => ourNames.has(qb.checksum(c))).length;
     out.ctf_thugpro = CTF_NAMES.filter((c) => theirNameSet.has(qb.checksum(c))).length;
     // collision
-    const ourCol = pyJoin(oursDir, mine, `${mine}.col.xbx`);
+    const ourCol = path.join(oursDir, mine, `${mine}.col.xbx`);
     if (fs.existsSync(ourCol)) {
         const [faces, missing] = colCheck.check(thug2Col.readCol(fs.readFileSync(ourCol), ourCol));
         out.col_ours = [faces, missing];
@@ -490,7 +490,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
     const thug2 = resolveInstall(v.thug2 ?? "C:\\Games\\THUG2\\Game", "thug2");
     const thugpro = v.thugpro ?? DEFAULT_THUGPRO;
     if (v["extract-thugpro"]) return extract(thugpro, v.thaw ?? "C:\\Games\\THAW", thug2);
-    const oursDir = v.staging || pyJoin(thug2, STAGING, "levels");
+    const oursDir = v.staging || path.join(thug2, STAGING, "levels");
     let zones = LEVELS.map((l) => l[0]);
     if (parsed.positionals.length) {
         const wanted = new Set(parsed.positionals.map((x) => x.toLowerCase()));

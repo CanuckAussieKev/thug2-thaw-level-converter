@@ -36,7 +36,6 @@ import {
     isMain,
     print,
     pyExit,
-    pyJoin,
     pyMax,
     pyMin,
     pyParseFloat,
@@ -1058,7 +1057,7 @@ export function convertThawModel(
     names: Map<number, string>,
     report: string[],
 ): boolean {
-    const parts = model.toLowerCase().split("\\");
+    const parts = model.toLowerCase().split(/[\\/]/);
     const stem = parts.at(-1)!.replace(/\.mdl$/, "");
     const dirs = parts.slice(0, -1);
     const root = resolveInstall(thawFolder, "thaw");
@@ -1103,19 +1102,19 @@ export function convertThawModel(
     }
     nodes.fixTerrains(rails, names);
     const text = `${stem}_NodeArray = [\n${rails.map((r) => `    ${qb.toNs(r, names, 1)}`).join("\n")}\n]\n`;
-    const dir = pyJoin(out, "models", ...dirs);
+    const dir = path.join(out, "models", ...dirs);
     fs.mkdirSync(dir, { recursive: true });
     let data = thug2Scene.writeScene(scene);
     thug2Scene.readScene(data, stem);
-    fs.writeFileSync(pyJoin(dir, `${stem}.mdl.xbx`), data);
+    fs.writeFileSync(path.join(dir, `${stem}.mdl.xbx`), data);
     tex.checkLoadable(textures, stem);
     data = tex.writeTex(textures);
     tex.readTex(data, stem);
-    fs.writeFileSync(pyJoin(dir, `${stem}.tex.xbx`), data);
+    fs.writeFileSync(path.join(dir, `${stem}.tex.xbx`), data);
     data = thug2Col.writeCol(col);
     thug2Col.readCol(data, stem);
-    fs.writeFileSync(pyJoin(dir, `${stem}.col.xbx`), data);
-    common.nsCompile(ns, text, pyJoin(dir, `${stem}.qb`));
+    fs.writeFileSync(path.join(dir, `${stem}.col.xbx`), data);
+    common.nsCompile(ns, text, path.join(dir, `${stem}.qb`));
     report.push(
         `PC-THAW-14: ${model}: ${scene.sectors.length} sector(s), ${textures.textures.length} texture(s), ` +
             `${col.objects.length} collision object(s), ${rails.length} rail node(s)` +
@@ -1447,7 +1446,7 @@ export function convertLevelNodes(
         );
     }
     fs.mkdirSync(outDir, { recursive: true });
-    writeLevelQb(ns, text, pyJoin(outDir, `${name}.qb`), scripts, names, ourReplaced);
+    writeLevelQb(ns, text, path.join(outDir, `${name}.qb`), scripts, names, ourReplaced);
     report.push(
         `  nodes: ${converted.length} of ${array.length} kept ${pyRepr(stats)}; ${killZones} kill zones, ` +
             `${breakingNames.size} breakables; ${lods.size} LOD sectors left out`,
@@ -1479,7 +1478,7 @@ function convertSky(args: Args, out: string, report: string[]): string | null {
     const name = "thaw_sky";
     const scene = convertScene(thaw.readGeom(need(files, ".geom"), SKY), warnings);
     const textures = thaw.readTex(need(files, ".tex"), SKY);
-    common.writeLevel(pyJoin(out, "levels", name), name, scene, textures, null);
+    common.writeLevel(path.join(out, "levels", name), name, scene, textures, null);
     common.reportLevel(report, name, scene, textures, null, warnings);
     return name;
 }
@@ -1542,7 +1541,7 @@ function newCollision(r: thugproNew.Resolved, col: thug2Col.ColFile, tpFrame: re
 }
 
 function cmdConvert(args: Args): void {
-    const out = args.out || pyJoin(args.thug2, STAGING);
+    const out = args.out || path.join(args.thug2, STAGING);
     args.ns = requireNs(args.ns); // (--ns, NEVERSCRIPT, ... or `npx thug2-neverscript fetch` - lib/neverscript.ts)
     if (!findPath(resolveInstall(args.thaw, "thaw"), "data", "pak", "dbg.pak.wpc"))
         pyExit(`${args.thaw}: THAW's data\\pak not found`);
@@ -1685,7 +1684,7 @@ function cmdConvert(args: Args): void {
         }
         let [nodeText, cleared] = nodes.stripMissingTrickObjects(level.text, sceneSectors);
         if (cleared) {
-            writeLevelQb(args.ns, nodeText, pyJoin(levelDir, `${name}.qb`), level.scripts, names, level.drop);
+            writeLevelQb(args.ns, nodeText, path.join(levelDir, `${name}.qb`), level.scripts, names, level.drop);
             nodeReport.push(`  ${cleared} geometry nodes without a scene sector: TrickObject / Cluster dropped`);
         }
         const col = convertCol(
@@ -1702,7 +1701,7 @@ function cmdConvert(args: Args): void {
         // (PC-THAW-6 ground_restarts)
         [nodeText, groundReport] = portChange("ground_restarts") ? nodes.groundRestarts(nodeText, col) : [nodeText, []];
         if (groundReport.length) {
-            writeLevelQb(args.ns, nodeText, pyJoin(levelDir, `${name}.qb`), level.scripts, names, level.drop);
+            writeLevelQb(args.ns, nodeText, path.join(levelDir, `${name}.qb`), level.scripts, names, level.drop);
             nodeReport.push(...groundReport);
         }
         common.writeLevel(levelDir, name, scene, textures, col);
@@ -1729,7 +1728,7 @@ function cmdConvert(args: Args): void {
             ...(extra?.setupNs ? { setup_script: setupName } : {}),
         });
     }
-    portedLevels.writeManifest(pyJoin(out, portedLevels.MANIFEST), manifest);
+    portedLevels.writeManifest(path.join(out, portedLevels.MANIFEST), manifest);
     print(report.join("\n"));
     print(`wrote ${out} (${manifest.levels.length} levels)`);
     print(staging.installHint(out));
@@ -1738,19 +1737,19 @@ function cmdConvert(args: Args): void {
 // --- self-check -------------------------------------------------------------------------------------------------
 
 function cmdSelfcheck(args: Args): number {
-    const pre = pyJoin(args.thug2, "Data", "pre");
+    const pre = path.join(args.thug2, "Data", "pre");
     let [checked, failures] = common.thug2RoundTrips(pre, ["LAscn.prx", "LAcol.prx"]);
     const names = thaw.loadNames(args.thaw);
     print(`${names.size} checksum names from dbg.pak`);
     const data = findPath(resolveInstall(args.thaw, "thaw"), "data")!;
     const paks = [findPath(data, "pak", "qb.pak.wpc")!];
-    for (const folder of ["worlds\\worldzones", "skies"]) {
-        const root = pyJoin(data, folder);
+    for (const folder of ["worlds/worldzones", "skies"]) {
+        const root = path.join(data, folder);
         for (const zone of fs.readdirSync(root).sort()) {
-            for (const entry of fs.readdirSync(pyJoin(root, zone)).sort()) {
+            for (const entry of fs.readdirSync(path.join(root, zone)).sort()) {
                 const lower = entry.toLowerCase();
                 if (lower.endsWith("_net.pak.wpc") || (folder === "skies" && lower.endsWith(".pak.wpc"))) {
-                    paks.push(pyJoin(root, zone, entry));
+                    paks.push(path.join(root, zone, entry));
                 }
             }
         }

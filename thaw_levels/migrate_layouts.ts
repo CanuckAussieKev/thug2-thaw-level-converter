@@ -24,7 +24,6 @@ import {
     isMain,
     print,
     pyExit,
-    pyJoin,
     pyParseFloat,
     readTextPy,
     runMain,
@@ -85,8 +84,8 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
         const newName = levelName(zone);
         const oldScene = qb.checksum(oldName);
         const newScene = qb.checksum(newName);
-        const oldPath = pyJoin(folder, `${hex8(oldScene)}.txt`);
-        const newPath = pyJoin(folder, `${hex8(newScene)}.txt`);
+        const oldPath = path.join(folder, `${hex8(oldScene)}.txt`);
+        const newPath = path.join(folder, `${hex8(newScene)}.txt`);
         if (!fs.existsSync(oldPath)) continue;
         if (fs.existsSync(newPath)) {
             print(`${zone}: ${newName} already has a layout - ${path.win32.basename(oldPath)} left as it is`);

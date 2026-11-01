@@ -27,6 +27,7 @@
 //                 peds_cars.FALLBACK_CAR.
 
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { FormatError } from "thug2-level-converter-core/level_port/binio.ts";
 import * as nodes from "thug2-level-converter-core/level_port/nodes.ts";
 import * as pedRigs from "thug2-level-converter-core/level_port/ped_rigs.ts";
@@ -397,7 +398,7 @@ const PARTICLE_STAND_INS = new Map([
 
 // THUG2's particle textures (Data\images\particles\<name>.img.xbx): name lower case -> name.
 export function particleTextures(thug2: string): Map<string, string> {
-    const folder = `${thug2}\\Data\\images\\particles`;
+    const folder = path.join(thug2, "Data", "images", "particles");
     const out = new Map<string, string>();
     if (fs.existsSync(folder) && fs.statSync(folder).isDirectory()) {
         for (const entry of fs.readdirSync(folder)) {
