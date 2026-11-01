@@ -15,3 +15,26 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+  # This repository on its own: installed from its pins, NeverScript fetched (core's lib/neverscript.ts) and run on
+  # each system - no decomp, no game.
+  neverscript:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx thug2-neverscript fetch
+      - name: Compile and decompile a script with the ns found
+        shell: bash
+        run: |
+          NS="$(npx thug2-neverscript where)"
+          printf 'smoke_test = {\n    level = 1\n}\n' > smoke.ns
+          "$NS" -c smoke.ns -o smoke.qb -targetGame thug2
+          "$NS" -d smoke.qb -o smoke2.ns
+          grep -q "level=1" smoke2.ns

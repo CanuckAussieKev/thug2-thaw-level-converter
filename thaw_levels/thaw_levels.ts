@@ -25,10 +25,12 @@ import * as portedLevels from "thug2-level-converter-core/level_port/ported_leve
 import * as qb from "thug2-level-converter-core/level_port/qb.ts";
 import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
 import * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
+import * as staging from "thug2-level-converter-core/level_port/staging.ts";
 import * as tex from "thug2-level-converter-core/level_port/tex.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
 import { findPath, resolveInstall } from "thug2-level-converter-core/lib/install.ts";
+import { requireNs } from "thug2-level-converter-core/lib/neverscript.ts";
 import {
     formatG,
     isMain,
@@ -366,14 +368,6 @@ const BLEND_BY_PREVIOUS = [12, 13];
 const DEFAULT_MIP = [1, 4, -8.0, -8.0]; // as nearly every material of THUG2's own levels
 
 // --- files ------------------------------------------------------------------------------------------------------
-
-const isDir = (p: string): boolean => {
-    try {
-        return fs.statSync(p).isDirectory();
-    } catch {
-        return false;
-    }
-};
 
 export function zonePak(thawFolder: string, zone: string): string | null {
     return findPath(resolveInstall(thawFolder, "thaw"), "data", "worlds", "worldzones", zone, `${zone}_net.pak.wpc`);
@@ -1549,14 +1543,14 @@ function newCollision(r: thugproNew.Resolved, col: thug2Col.ColFile, tpFrame: re
 
 function cmdConvert(args: Args): void {
     const out = args.out || pyJoin(args.thug2, STAGING);
-    if (!fs.existsSync(args.ns)) pyExit(common.nsMissing(args.ns));
+    args.ns = requireNs(args.ns); // (--ns, NEVERSCRIPT, ... or `npx thug2-neverscript fetch` - lib/neverscript.ts)
     if (!findPath(resolveInstall(args.thaw, "thaw"), "data", "pak", "dbg.pak.wpc"))
         pyExit(`${args.thaw}: THAW's data\\pak not found`);
     const names = thaw.loadNames(args.thaw);
     const structs = levelStructs(args.thaw, names);
     const nodeFlags = nonStoryNodeFlags(args.thaw, names);
     const wanted = args.levels.length ? args.levels : LEVELS.filter((l) => l[5]).map((l) => l[0]);
-    if (isDir(out)) fs.rmSync(out, { recursive: true });
+    staging.prepareStaging(out, !args.levels.length);
     fs.mkdirSync(out, { recursive: true });
     const manifest: { levels: Record<string, unknown>[] } = { levels: [] };
     const report: string[] = [];
@@ -1579,7 +1573,7 @@ function cmdConvert(args: Args): void {
         print("converting", zone);
         const files = zoneFiles(file);
         const name = levelName(zone, args.legacyNames);
-        const levelDir = pyJoin(out, "levels", name);
+        const levelDir = staging.freshLevelFolder(out, name);
         const colIn = thaw.readCol(need(files, ".col"), `${zone}.col`);
         const shift =
             args.frame === "thugpro"
@@ -1737,9 +1731,8 @@ function cmdConvert(args: Args): void {
     }
     portedLevels.writeManifest(pyJoin(out, portedLevels.MANIFEST), manifest);
     print(report.join("\n"));
-    print(
-        `wrote ${out} (${manifest.levels.length} levels); install with tools\\pipeline\\menu_level\\make_menu_level.ts`,
-    );
+    print(`wrote ${out} (${manifest.levels.length} levels)`);
+    print(staging.installHint(out));
 }
 
 // --- self-check -------------------------------------------------------------------------------------------------
@@ -1857,7 +1850,7 @@ export function parseCommandLine(argv: readonly string[]): Args {
         thug2: v.thug2 ?? "C:\\Games\\THUG2\\Game",
         thaw: v.thaw ?? "C:\\Games\\THAW",
         out: v.out ?? null,
-        ns: v.ns ?? common.NS,
+        ns: v.ns ?? "",
         frame,
         recentre,
         compat: compatName,

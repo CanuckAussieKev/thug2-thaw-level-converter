@@ -6,7 +6,7 @@ from your copies each time.
 
 ## Running it
 
-Needs Node 24+ (`npm install` once; docs/typescript.md) and NeverScript (`tools\build_neverscript.ps1` -> `out\neverscript\ns.exe`).
+Needs Node 24+ (`npm install` once; docs/typescript.md) and NeverScript's ns (`npx thug2-neverscript fetch`, or the decomp's `tools\build_neverscript.ps1`).
 
     node thaw_levels/thaw_levels.ts convert [--thaw C:\Games\THAW] [--thug2 C:\Games\THUG2]
     node tools/pipeline/menu_level/make_menu_level.ts
