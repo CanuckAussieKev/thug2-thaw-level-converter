@@ -11,15 +11,15 @@
 //     its level's table; ours have CreatedAtStart instead (thaw_levels.zoneNodeFlags) - a piece on one side only is
 //     a wall or rail the other side hasn't.
 // Also reported: the multiplayer restarts (order and places), and how many of each side's collision faces can't be
-// found through their BSP trees (tools/pipeline/level_port/col_check.ts).
+// found through their BSP trees (thug2-level-converter-core/level_port/col_check.ts).
 //
-//   node tools/pipeline/thaw_levels/thugpro_compare.ts [levels...] [--thug2 C:\Games\THUG2-1] [--thugpro <dir>] [--json out]
-//   node tools/pipeline/thaw_levels/thugpro_compare.ts --extract-thugpro [--thugpro <dir>] [--thaw C:\Games\THAW]
-//     (TP-4: rewrites tools/pipeline/compat/thugpro/thaw_levels.json `spawns` / `spawns_not_applied` - extractSpawns)
+//   node thaw_levels/thugpro_compare.ts [levels...] [--thug2 C:\Games\THUG2-1] [--thugpro <dir>] [--json out]
+//   node thaw_levels/thugpro_compare.ts --extract-thugpro [--thugpro <dir>] [--thaw C:\Games\THAW]
+//     (TP-4: rewrites thug2-level-converter-core/compat/thugpro/thaw_levels.json `spawns` / `spawns_not_applied` - extractSpawns)
 
 import * as fs from "node:fs";
-import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import * as compat from "thug2-level-converter-core/compat/compat.ts";
 import {
     CTF_NAMES,
     compactJson,
@@ -34,16 +34,16 @@ import {
     sameSequence,
     sequence,
     TOLERANCE,
-} from "../compat/thugpro_nodes.ts";
-import * as colCheck from "../level_port/col_check.ts";
-import * as pedsCars from "../level_port/peds_cars.ts";
-import * as prx from "../level_port/prx.ts";
-import * as qb from "../level_port/qb.ts";
-import { checksum, Name, type QbValue, Struct, Vector } from "../level_port/qb.ts";
-import * as scriptPort from "../level_port/script_port.ts";
-import * as thug2Col from "../level_port/thug2_col.ts";
-import { helpFromHeader } from "../lib/cli.ts";
-import { resolveInstall } from "../lib/install.ts";
+} from "thug2-level-converter-core/compat/thugpro_nodes.ts";
+import * as colCheck from "thug2-level-converter-core/level_port/col_check.ts";
+import * as pedsCars from "thug2-level-converter-core/level_port/peds_cars.ts";
+import * as prx from "thug2-level-converter-core/level_port/prx.ts";
+import * as qb from "thug2-level-converter-core/level_port/qb.ts";
+import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
+import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
+import { helpFromHeader } from "thug2-level-converter-core/lib/cli.ts";
+import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
 import {
     Float,
     formatFixed,
@@ -56,8 +56,8 @@ import {
     pyRound,
     runMain,
     writeTextPy,
-} from "../lib/py.ts";
-import * as thaw from "../thaw/thaw.ts";
+} from "thug2-level-converter-core/lib/py.ts";
+import * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
 import {
     COMPAT,
     findPath,
@@ -92,7 +92,7 @@ export {
 }; // (compat/thugpro_nodes.ts since the split)
 
 // THUGPRO's names for the levels it renamed (its data\pre file names; the others are the zone's): to find its files.
-const THUGPRO_NAMES = COMPAT.levelNames; // (tools/pipeline/compat/thugpro/thaw_levels.json)
+const THUGPRO_NAMES = COMPAT.levelNames; // (thug2-level-converter-core/compat/thugpro/thaw_levels.json)
 const DEFAULT_THUGPRO = pyJoin(process.env.LOCALAPPDATA ?? "", "THUG Pro");
 const prxFile = (folder: string, wanted: string): string | null => findPath(folder, "data", "pre", wanted);
 
@@ -226,11 +226,11 @@ export function compare(zone: string, oursDir: string, thugpro: string): Result 
 const EDIT_NOTES = {
     _source:
         "THUGPRO's installed data\\pre\\<level>_scripts.prx / scn.prx / col.prx against THAW's own zone archives, " +
-        "extracted by `node tools/pipeline/thaw_levels/thugpro_compare.ts --extract-thugpro` (thugpro_extract.ts; " +
+        "extracted by `node thaw_levels/thugpro_compare.ts --extract-thugpro` (thugpro_extract.ts; " +
         "positions: THAW's frame); applied by thugpro_edits.ts",
 };
 
-export const PROFILE_FILE = fileURLToPath(new URL("../compat/thugpro/thaw_levels.json", import.meta.url));
+export const PROFILE_FILE = compat.profileFile("thaw_levels"); // (thug2-level-converter-core's compat/thugpro)
 // A restart's network types (THUG2's: what a network game spawns at - nodes.NET_RESTART_TYPES).
 const NET_TYPES = new Set(["multiplayer", "horse", "ctf", "ctf_1", "ctf_2", "team"]);
 const MOVED = 0.1; // units: a place further than this from THAW's (in the same frame) is THUGPRO's hand move
@@ -391,7 +391,7 @@ function extract(thugpro: string, thawFolder: string, thug2: string): number {
                 "leaves the whole section out.",
             _source:
                 "THUGPRO's installed data\\pre\\<level>_scripts.prx / scn.prx / col.prx and thugpro_qb.prx, " +
-                "against THAW's own zone archives; written by `node tools/pipeline/thaw_levels/thugpro_compare.ts " +
+                "against THAW's own zone archives; written by `node thaw_levels/thugpro_compare.ts " +
                 "--extract-thugpro` (thugpro_extract.ts)",
         } as Record<string, unknown>,
     };
@@ -439,7 +439,7 @@ function extract(thugpro: string, thawFolder: string, thug2: string): number {
         _register: "TP-4",
         _source:
             "THUGPRO's installed data\\pre\\<level>_scripts.prx node arrays against THAW's own (<zone>_net.pak.wpc), " +
-            "extracted by `node tools/pipeline/thaw_levels/thugpro_compare.ts --extract-thugpro` (pos: THAW's frame)",
+            "extracted by `node thaw_levels/thugpro_compare.ts --extract-thugpro` (pos: THAW's frame)",
     };
     const pending: Record<string, unknown> = {
         _note:
@@ -457,7 +457,7 @@ function extract(thugpro: string, thawFolder: string, thug2: string): number {
     }
     profile.spawns = section;
     profile.spawns_not_applied = pending;
-    fs.writeFileSync(PROFILE_FILE, `${compactJson(profile)}\n`, "utf-8");
+    fs.writeFileSync(compat.profileFileToWrite("thaw_levels"), `${compactJson(profile)}\n`, "utf-8");
     print(`wrote ${PROFILE_FILE}`);
     return 0;
 }

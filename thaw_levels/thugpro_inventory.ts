@@ -9,20 +9,29 @@
 // and collision objects (added, removed, other face count, moved). THUGPRO converted THAW's Xbox files: some
 // differences may be that build's rather than hand edits.
 //
-//   node tools/pipeline/thaw_levels/thugpro_inventory.ts [levels...] [--thaw C:\Games\THAW] [--thugpro <dir>] [--json out]
+//   node thaw_levels/thugpro_inventory.ts [levels...] [--thaw C:\Games\THAW] [--thugpro <dir>] [--json out]
 
 import * as fs from "node:fs";
 import { parseArgs } from "node:util";
-import * as nodes from "../level_port/nodes.ts";
-import * as prx from "../level_port/prx.ts";
-import * as qb from "../level_port/qb.ts";
-import { Name, type QbValue, Struct, Vector } from "../level_port/qb.ts";
-import * as thug2Col from "../level_port/thug2_col.ts";
-import * as thug2Scene from "../level_port/thug2_scene.ts";
-import { helpFromHeader } from "../lib/cli.ts";
-import { resolveInstall } from "../lib/install.ts";
-import { hex8, isMain, print, pyExit, pyJoin, pyJsonDumps, runMain, writeTextPy } from "../lib/py.ts";
-import * as thaw from "../thaw/thaw.ts";
+import * as nodes from "thug2-level-converter-core/level_port/nodes.ts";
+import * as prx from "thug2-level-converter-core/level_port/prx.ts";
+import * as qb from "thug2-level-converter-core/level_port/qb.ts";
+import { Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
+import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
+import { helpFromHeader } from "thug2-level-converter-core/lib/cli.ts";
+import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
+import {
+    hex8,
+    isMain,
+    print,
+    pyExit,
+    pyJoin,
+    pyJsonDumps,
+    runMain,
+    writeTextPy,
+} from "thug2-level-converter-core/lib/py.ts";
+import * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
 import {
     COMPAT,
     FACE_KEEP,

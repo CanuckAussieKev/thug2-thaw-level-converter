@@ -1,14 +1,14 @@
-// NOT ORIGINAL - tests of the THAW converter's pure parts and the Python helpers it brought into tools/pipeline/lib (formatG,
+// NOT ORIGINAL - tests of the THAW converter's pure parts and the Python helpers it brought into thug2-level-converter-core/lib (formatG,
 // pySplit, pyTitle, pySplitlines' keepends), against values Python 3.14 gave (no game data).
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { checksum, Name, Struct, Vector } from "../level_port/qb.ts";
-import { zfightGates } from "../level_port/zfight_gate.ts";
-import { formatG, pySplit, pySplitlines, pyTitle } from "../lib/py.ts";
-import { pack } from "../lib/struct.ts";
-import { inlineStruct, statements, tokens } from "../thaw/thaw.ts";
-import { RAIL_SCRIPTS, scriptToks } from "../thaw/thaw_scripts.ts";
+import { checksum, Name, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import { zfightGates } from "thug2-level-converter-core/level_port/zfight_gate.ts";
+import { formatG, pySplit, pySplitlines, pyTitle } from "thug2-level-converter-core/lib/py.ts";
+import { pack } from "thug2-level-converter-core/lib/struct.ts";
+import { inlineStruct, statements, tokens } from "thug2-level-converter-core/thaw/thaw.ts";
+import { RAIL_SCRIPTS, scriptToks } from "thug2-level-converter-core/thaw/thaw_scripts.ts";
 import {
     applyNodeFlags,
     applySpawns,
@@ -57,7 +57,7 @@ test("frames: whole sixteenths, BSP splits moved, level names", () => {
     assert.equal(tree.kind === "split" && tree.point, 120);
     assert.equal(levelName("Z_MA"), "z_ma");
     assert.equal(levelName("Z_MA", true), "thaw_ma");
-    assert.equal(levelName("Z_CH"), "skatepark"); // (THUGPRO's name: tools/pipeline/compat/thugpro, TP-1)
+    assert.equal(levelName("Z_CH"), "skatepark"); // (THUGPRO's name: thug2-level-converter-core/compat/thugpro, TP-1)
 });
 
 test("THAW script tokens: 0x4A inline structures, statements", () => {
@@ -336,7 +336,7 @@ test("netOnlyRails (PC-THAW-15): Santa Monica's static ferris rails made only in
     assert.deepEqual(netOnlyRails("z_ch", converted, names, []), [0, ""]);
 });
 
-// z-fighting gates (tools/pipeline/level_port/zfight_gate.ts): each level as the converter wrote and resolved it, at most
+// z-fighting gates (thug2-level-converter-core/level_port/zfight_gate.ts): each level as the converter wrote and resolved it, at most
 // what it was when the gate was set (2026-10-25, C:\Games\THUG2-4) - skipped
 // where there is no such conversion (THUG2_ZFIGHT_GAME: the game folder, default the main install).
 zfightGates("thaw", {

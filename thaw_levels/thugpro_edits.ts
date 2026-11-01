@@ -1,8 +1,8 @@
 // NOT ORIGINAL - THUGPRO's hand edits to its THAW level ports, applied to ours from the THUGPRO compatibility profile
-// (tools/pipeline/compat/thugpro/thaw_levels.json, register entries TP-5...TP-9 in its README.md). The user's decision
+// (thug2-level-converter-core/compat/thugpro/thaw_levels.json, register entries TP-5...TP-9 in its README.md). The user's decision
 // (2026-10-20): everything THUGPRO changed in its versions of our ported levels is data in the profile, so that
 // `--compat thugpro` (the default) gives THUGPRO's level and `--compat none` THAW's own. The data is extracted from
-// THUGPRO's installed files against THAW's own by tools/pipeline/thaw_levels/thugpro_extract.ts (`thugpro_compare.ts
+// THUGPRO's installed files against THAW's own by thaw_levels/thugpro_extract.ts (`thugpro_compare.ts
 // --extract-thugpro`) - never typed in; what would copy THUGPRO's own content (its meshes, models, scripts) is listed
 // there as awaiting the user, not applied.
 //
@@ -18,12 +18,12 @@
 //
 // This module has no import of thaw_levels.ts (which imports it): the zone's data is passed in.
 
-import { FormatError } from "../level_port/binio.ts";
-import { checksum, Name, type QbValue, Struct, Vector } from "../level_port/qb.ts";
-import type * as tex from "../level_port/tex.ts";
-import * as thug2Col from "../level_port/thug2_col.ts";
-import { Float, pyIntHex } from "../lib/py.ts";
-import type * as thaw from "../thaw/thaw.ts";
+import { FormatError } from "thug2-level-converter-core/level_port/binio.ts";
+import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import type * as tex from "thug2-level-converter-core/level_port/tex.ts";
+import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
+import { Float, pyIntHex } from "thug2-level-converter-core/lib/py.ts";
+import type * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
 
 // --- the data ---------------------------------------------------------------------------------------------------
 

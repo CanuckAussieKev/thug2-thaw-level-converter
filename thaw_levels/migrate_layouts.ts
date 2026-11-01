@@ -4,7 +4,7 @@
 // (levelName, frameShift): the file renamed after the new scene's checksum, its scene line changed and every position
 // moved by the difference between the two frames.
 //
-//   node tools/pipeline/thaw_levels/migrate_layouts.ts --game C:\Games\THUG2-1 [--dry-run] [levels...]
+//   node thaw_levels/migrate_layouts.ts --game C:\Games\THUG2-1 [--dry-run] [levels...]
 //
 // A layout's records (all world coordinates):
 //   sector / rail / clone <checksum> <quarters> <offset x y z> ...: x' = Q x + offset (Q: quarter turns about y,
@@ -15,11 +15,21 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseArgs } from "node:util";
-import { migrateText } from "../level_port/layouts.ts";
-import * as qb from "../level_port/qb.ts";
-import { helpFromHeader } from "../lib/cli.ts";
-import { formatG, hex8, isMain, print, pyExit, pyJoin, pyParseFloat, readTextPy, runMain } from "../lib/py.ts";
-import * as thaw from "../thaw/thaw.ts";
+import { migrateText } from "thug2-level-converter-core/level_port/layouts.ts";
+import * as qb from "thug2-level-converter-core/level_port/qb.ts";
+import { helpFromHeader } from "thug2-level-converter-core/lib/cli.ts";
+import {
+    formatG,
+    hex8,
+    isMain,
+    print,
+    pyExit,
+    pyJoin,
+    pyParseFloat,
+    readTextPy,
+    runMain,
+} from "thug2-level-converter-core/lib/py.ts";
+import * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
 import {
     findPath,
     frameShift,

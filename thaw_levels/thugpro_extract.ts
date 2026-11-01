@@ -1,13 +1,13 @@
 // NOT ORIGINAL - extracts THUGPRO's hand edits to its THAW level ports into the THUGPRO compatibility profile
-// (tools/pipeline/compat/thugpro/thaw_levels.json: TP-5 node_edits, TP-6 node_flags, TP-7 removed, TP-8 added, TP-9 collision;
+// (thug2-level-converter-core/compat/thugpro/thaw_levels.json: TP-5 node_edits, TP-6 node_flags, TP-7 removed, TP-8 added, TP-9 collision;
 // what isn't applied - THUGPRO's own meshes, models and scripts - in `awaiting`). Run by
-// `node tools/pipeline/thaw_levels/thugpro_compare.ts --extract-thugpro` (with TP-4's spawns). Read only on both installs:
+// `node thaw_levels/thugpro_compare.ts --extract-thugpro` (with TP-4's spawns). Read only on both installs:
 // THUGPRO's <thugpro>\data\pre\<level>_scripts.prx / <level>scn.prx / <level>col.prx against THAW's own zone archives
 // (<thaw>\Game\data\worlds\worldzones\<zone>\<zone>_net.pak.wpc - what thaw_levels converts - and <zone>.pak.wpc, the
 // full one with the story's pieces), in THUGPRO's frame. Applied by thugpro_edits.ts.
 //
 // What counts as THUGPRO's edit (the rest of the differences come from THUGPRO converting THAW's full archive, not the
-// net one, or from its toolchain - tools/pipeline/thaw_levels/thugpro_inventory.ts lists everything):
+// net one, or from its toolchain - thaw_levels/thugpro_inventory.ts lists everything):
 //   - TP-5: a node of the net array at another place (> 0.1 units) or turned, or with other Links (by name); a scene
 //     sector / collision object THUGPRO moved rigidly (the same vertices, moved and turned about y: fitted, the fit
 //     checked to 0.1 units); a node renamed (THUGPRO's node of another name at its place, same class) when no THAW
@@ -23,16 +23,16 @@
 //     (same count, same vertices).
 
 import { crc32 } from "node:zlib";
-import * as nodes from "../level_port/nodes.ts";
-import type * as pedsCars from "../level_port/peds_cars.ts";
-import * as prx from "../level_port/prx.ts";
-import { checksum, Name, type QbValue, Struct, Vector } from "../level_port/qb.ts";
-import type * as scriptPort from "../level_port/script_port.ts";
-import * as thug2Col from "../level_port/thug2_col.ts";
-import * as thug2Scene from "../level_port/thug2_scene.ts";
-import { resolveInstall } from "../lib/install.ts";
-import { pyExit, pyRound } from "../lib/py.ts";
-import * as thaw from "../thaw/thaw.ts";
+import * as nodes from "thug2-level-converter-core/level_port/nodes.ts";
+import type * as pedsCars from "thug2-level-converter-core/level_port/peds_cars.ts";
+import * as prx from "thug2-level-converter-core/level_port/prx.ts";
+import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import type * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
+import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
+import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
+import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
+import { pyExit, pyRound } from "thug2-level-converter-core/lib/py.ts";
+import * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
 import {
     COMPAT,
     FACE_KEEP,
@@ -114,7 +114,7 @@ export interface ZoneExtract {
     counts: Record<string, number>;
 }
 
-// TPN-THAW-1...TPN-THAW-5 register rows (tools/pipeline/compat/thugpro/README.md "New in THUGPRO")
+// TPN-THAW-1...TPN-THAW-5 register rows (thug2-level-converter-core/compat/thugpro/README.md "New in THUGPRO")
 const N_GEOMETRY = "TPN-THAW-1"; // new meshes and collision
 const N_RESHAPED = "TPN-THAW-2"; // THAW's meshes / collision THUGPRO reshaped
 const N_NODES = "TPN-THAW-3"; // THUGPRO's content nodes

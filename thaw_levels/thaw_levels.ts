@@ -1,8 +1,8 @@
 // NOT ORIGINAL - converts Tony Hawk's American Wasteland (PC) levels to THUG2's formats so that THUG2 can load and
 // play them (see README.md). Nothing of either game is stored in the repo: the files are made from the user's copies.
 //
-//   node tools/pipeline/thaw_levels/thaw_levels.ts selfcheck [--thug2 C:\Games\THUG2] [--thaw C:\Games\THAW]
-//   node tools/pipeline/thaw_levels/thaw_levels.ts convert [levels...] [--thug2 ...] [--thaw ...] [--out <folder>]
+//   node thaw_levels/thaw_levels.ts selfcheck [--thug2 C:\Games\THUG2] [--thaw C:\Games\THAW]
+//   node thaw_levels/thaw_levels.ts convert [levels...] [--thug2 ...] [--thaw ...] [--out <folder>]
 //   then: node tools/pipeline/menu_level/make_menu_level.ts   (installs them into the data overlay, with level select signs)
 //
 // convert reads each level's "net" archive (<thaw>\Game\data\worlds\worldzones\<zone>\<zone>_net.pak.wpc: the area
@@ -10,26 +10,26 @@
 // levels.qb and data\pak\dbg.pak.wpc's checksum names, and writes <thug2>\thug2-decomp-thaw\ (not read by the game):
 // levels\<level>\<level>.scn.xbx / .tex.xbx / .col.xbx / .qb (the node array; <level>: levelName), the sky's scene and
 // textures, and levels.json (what make_menu_level.ts adds to Levels.qb and the level select:
-// tools/pipeline/level_port/ported_levels.ts).
+// thug2-level-converter-core/level_port/ported_levels.ts).
 
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseArgs } from "node:util";
-import * as compat from "../compat/compat.ts";
-import { FormatError } from "../level_port/binio.ts";
-import * as common from "../level_port/common.ts";
-import * as geometry from "../level_port/geometry.ts";
-import * as nodes from "../level_port/nodes.ts";
-import * as pedRigs from "../level_port/ped_rigs.ts";
-import * as pedsCars from "../level_port/peds_cars.ts";
-import * as portedLevels from "../level_port/ported_levels.ts";
-import * as qb from "../level_port/qb.ts";
-import { checksum, Name, type QbValue, Struct, Vector } from "../level_port/qb.ts";
-import * as scriptPort from "../level_port/script_port.ts";
-import * as tex from "../level_port/tex.ts";
-import * as thug2Col from "../level_port/thug2_col.ts";
-import * as thug2Scene from "../level_port/thug2_scene.ts";
-import { findPath, resolveInstall } from "../lib/install.ts";
+import * as compat from "thug2-level-converter-core/compat/compat.ts";
+import { FormatError } from "thug2-level-converter-core/level_port/binio.ts";
+import * as common from "thug2-level-converter-core/level_port/common.ts";
+import * as geometry from "thug2-level-converter-core/level_port/geometry.ts";
+import * as nodes from "thug2-level-converter-core/level_port/nodes.ts";
+import * as pedRigs from "thug2-level-converter-core/level_port/ped_rigs.ts";
+import * as pedsCars from "thug2-level-converter-core/level_port/peds_cars.ts";
+import * as portedLevels from "thug2-level-converter-core/level_port/ported_levels.ts";
+import * as qb from "thug2-level-converter-core/level_port/qb.ts";
+import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
+import * as tex from "thug2-level-converter-core/level_port/tex.ts";
+import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
+import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
+import { findPath, resolveInstall } from "thug2-level-converter-core/lib/install.ts";
 import {
     formatG,
     isMain,
@@ -43,11 +43,11 @@ import {
     pyTitle,
     roundHalfEven,
     runMain,
-} from "../lib/py.ts";
-import { StructError } from "../lib/struct.ts";
-import { applyNodeFlags, nodeFlagScript } from "../thaw/node_flags.ts";
-import * as thaw from "../thaw/thaw.ts";
-import * as thawScripts from "../thaw/thaw_scripts.ts";
+} from "thug2-level-converter-core/lib/py.ts";
+import { StructError } from "thug2-level-converter-core/lib/struct.ts";
+import { applyNodeFlags, nodeFlagScript } from "thug2-level-converter-core/thaw/node_flags.ts";
+import * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
+import * as thawScripts from "thug2-level-converter-core/thaw/thaw_scripts.ts";
 import * as thugproEdits from "./thugpro_edits.ts";
 import * as thugproNew from "./thugpro_new.ts";
 
@@ -94,7 +94,7 @@ const BY_ZONE = new Map(LEVELS.map((level) => [level[0].toLowerCase(), level]));
 //   rule THUGPRO's toolchain applies (approach from Morten1337's thugpro_toolchain: find_zone_origin.py +
 //   node_position_patcher.py + THUGPRO_SceneObjectTool -origin).
 // What THUGPRO chose that isn't THAW data - four level names, Vans Park left unmoved, East LA's and Santa Monica's own
-// offsets - is in the compatibility profile tools/pipeline/compat/thugpro/thaw_levels.json (its README.md lists every such
+// offsets - is in the compatibility profile thug2-level-converter-core/compat/thugpro/thaw_levels.json (its README.md lists every such
 // choice, TP-1...; --compat none leaves them out): setCompat() loads it.
 export const COMPAT = {
     levelNames: new Map<string, string>(),
@@ -122,7 +122,7 @@ export const newFor = (zone: string): thugproNew.ZoneNew | null => COMPAT.thugpr
 // TP-5...TP-9: the zone's edits from the profile, or null (none, or --compat none).
 export const editsFor = (zone: string): thugproEdits.ZoneEdits | null => thugproEdits.zoneEdits(COMPAT.edits, zone);
 
-// TP-4 (tools/pipeline/compat/thugpro/thaw_levels.json `spawns`): a network spawn - a restart with Multiplayer / Horse / CTF /
+// TP-4 (thug2-level-converter-core/compat/thugpro/thaw_levels.json `spawns`): a network spawn - a restart with Multiplayer / Horse / CTF /
 // Team in its restart_types - as THUGPRO's THAW port has it where THUGPRO hand-edited it (moved it, changed its
 // types, or added it). `node`: our node of that name changed (pos / angles in THAW's own frame - the level's frame
 // shift is added as for every node; restart_types: the new list, [] = none); without `node`: a spawn added in our
@@ -131,7 +131,7 @@ export const editsFor = (zone: string): thugproEdits.ZoneEdits | null => thugpro
 // in THUGPRO's order - THUG2 starts player n at the n-th Multiplayer restart of the node array and respawns at
 // one of the first 8 (Skate 0x00566100 -> GetRestartNode 0x0046B790; CSkater::MoveToRandomRestart 0x00580830:
 // Rnd(8)), so the order is part of a fair start too. Extracted by
-// `node tools/pipeline/thaw_levels/thugpro_compare.ts --extract-thugpro`.
+// `node thaw_levels/thugpro_compare.ts --extract-thugpro`.
 export interface ZoneSpawns {
     edits: SpawnEdit[];
     order?: string[];
@@ -145,7 +145,7 @@ export interface SpawnEdit {
     dropin?: boolean;
 }
 
-// The compatibility profile's THAW data (tools/pipeline/compat/compat.ts): "thugpro" (the default) or "none".
+// The compatibility profile's THAW data (thug2-level-converter-core/compat/compat.ts): "thugpro" (the default) or "none".
 export function setCompat(name: string, withThugproNew = true): void {
     const profile = compat.load(name);
     COMPAT.thugproNew = withThugproNew ? thugproNew.fromEntries(compat.thugproNew(profile, "thaw_levels")) : {};
@@ -181,7 +181,7 @@ export const dropInName = (level: string): string => `${level}_net_dropin`;
 
 // TP-4: the profile's spawn edits applied to the converted nodes (before the frame shift: positions are THAW's
 // frame). Added spawns go at the end; then the spawns' slots in the array are refilled in THUGPRO's order (`order`;
-// every node's Links follow - the approach of tools/pipeline/thug1_levels' TP-31; nodes.convertNodes' Player1-first swap
+// every node's Links follow - the approach of thug2-thug1-level-converter/thug1_levels' TP-31; nodes.convertNodes' Player1-first swap
 // can stay: it only exchanges two slots before the refill). Returns the NeverScript to add (the drop-in script) or "".
 export function applySpawns(
     zone: string,
@@ -287,7 +287,7 @@ export function applySpawns(
 
 setCompat("thugpro"); // (the default, also for the tools that import this one: migrate_layouts, thugpro_compare)
 
-// Our own changes to THAW's levels - neither THAW's data nor THUGPRO's (tools/pipeline/compat/thugpro/thaw_levels.json
+// Our own changes to THAW's levels - neither THAW's data nor THUGPRO's (thug2-level-converter-core/compat/thugpro/thaw_levels.json
 // `port_changes`, PC-THAW-n in its README.md): kept under --compat none; --no-port-changes leaves out all but the
 // ones a level needs to load (`required`). The converter asks by each entry's `switch`.
 export const PORT = { on: new Set<string>() };
@@ -1420,7 +1420,7 @@ export function convertLevelNodes(
         }
     }
     // Every human ped on the skeleton its THUG2 profile's model is rigged to (ours and THUGPRO's added ones), and
-    // the level's load_level_anims for the Ped_Female animations (tools/pipeline/level_port/ped_rigs.ts).
+    // the level's load_level_anims for the Ped_Female animations (thug2-level-converter-core/level_port/ped_rigs.ts).
     let animsText = "";
     if (port !== null) {
         const rigs = pedRigs.fixPedRigs(converted, names, (v) => port.assets.femaleRigs.has(v));
@@ -1879,7 +1879,7 @@ const OPTIONS = {
     // default), or recentre (the older one: an area reaching further than --recentre moved to the origin, x / z)
     frame: { type: "string" },
     recentre: { type: "string" }, // --frame recentre: move an area whose collision reaches further than this (x / z)
-    // compatibility profile (tools/pipeline/compat): thugpro - names and frames as THUGPRO's THAW ports (default), or none
+    // compatibility profile (thug2-level-converter-core/compat): thugpro - names and frames as THUGPRO's THAW ports (default), or none
     compat: { type: "string" },
     "legacy-names": { type: "boolean" }, // name the levels thaw_<xx> as before, not by their zones (z_ma)
     static: { type: "boolean" }, // convert: the levels' scripts, moving objects, peds and cars left out
@@ -1894,7 +1894,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
     const args = parseCommandLine(argv);
     setCompat(args.compat, !args.noThugproNew);
     setPortChanges(!args.noPortChanges);
-    // (the install root or the game folder itself: C:\Games\THUG2 -> C:\Games\THUG2\Game - tools/pipeline/lib/install.ts)
+    // (the install root or the game folder itself: C:\Games\THUG2 -> C:\Games\THUG2\Game - thug2-level-converter-core/lib/install.ts)
     args.thug2 = resolveInstall(args.thug2, "thug2");
     if (args.command === "selfcheck") return cmdSelfcheck(args);
     cmdConvert(args);

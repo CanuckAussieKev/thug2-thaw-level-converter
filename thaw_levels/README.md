@@ -8,16 +8,16 @@ from your copies each time.
 
 Needs Node 24+ (`npm install` once; docs/typescript.md) and NeverScript (`tools\build_neverscript.ps1` -> `out\neverscript\ns.exe`).
 
-    node tools/pipeline/thaw_levels/thaw_levels.ts convert [--thaw C:\Games\THAW] [--thug2 C:\Games\THUG2]
+    node thaw_levels/thaw_levels.ts convert [--thaw C:\Games\THAW] [--thug2 C:\Games\THUG2]
     node tools/pipeline/menu_level/make_menu_level.ts
 
-Switches (tools/pipeline/compat/thugpro/README.md): `--compat none` (no THUGPRO data), `--no-thugpro-new` (THUGPRO's hand edits, not its own content), `--thugpro <dir>` (THUGPRO's install, read for `thugpro_new` - its pieces are referenced, never copied into the repo; default `%LOCALAPPDATA%THUG Pro`; missing: a warning, those pieces skipped), `--no-port-changes` (our own changes off but the ones a level needs to load - `port_changes`, PC-THAW-n).
+Switches (thug2-level-converter-core/compat/thugpro/README.md): `--compat none` (no THUGPRO data), `--no-thugpro-new` (THUGPRO's hand edits, not its own content), `--thugpro <dir>` (THUGPRO's install, read for `thugpro_new` - its pieces are referenced, never copied into the repo; default `%LOCALAPPDATA%THUG Pro`; missing: a warning, those pieces skipped), `--no-port-changes` (our own changes off but the ones a level needs to load - `port_changes`, PC-THAW-n).
 
 `convert` reads each level's "net" archive (`Game\data\worlds\worldzones\<zone>\<zone>_net.pak.wpc`: the area on its
 own, as THAW loads it for classic and online games - no story props, vehicles or sounds), the sky
 (`data\skies\TestLevel_Sky`), `data\pak\qb.pak.wpc`'s levels.qb and `data\pak\dbg.pak.wpc` (the names of the
 checksums), and writes `<thug2>\thug2-decomp-thaw\`: `levels\z_<xx>\z_<xx>.scn.xbx / .tex.xbx / .col.xbx /
-.qb` (the level named after its zone, as THUGPRO's are - four with THUGPRO's own names, from the compatibility profile `tools/pipeline/compat/thugpro` (`--compat none`: none): online the load script's name is the level), `levels\thaw_sky` and `levels.json`. The default is all 15 levels of the table `LEVELS` in `thaw_levels.ts`:
+.qb` (the level named after its zone, as THUGPRO's are - four with THUGPRO's own names, from the compatibility profile `thug2-level-converter-core/compat/thugpro` (`--compat none`: none): online the load script's name is the level), `levels\thaw_sky` and `levels.json`. The default is all 15 levels of the table `LEVELS` in `thaw_levels.ts`:
 the classic ones (Z_CH Chicago, Z_MA The Mall, Z_DN Minneapolis, Z_JA Kyoto, Z_SZ Santa Cruz, Z_SV2 The Ruins) and
 the story's areas (Z_SV Vans Park, Z_HO Hollywood, Z_BH Beverly Hills, Z_DT Downtown, Z_EL East LA, Z_SM Santa
 Monica, Z_SR Skate Ranch, Z_LV Casino, Z_OI Oil Rig). Name some to convert only those (`convert Z_CH MA`). Level
@@ -27,7 +27,7 @@ full `convert`.)
 `make_menu_level.ts` copies every converted game's levels into the data overlay `<thug2>\thug2-decomp-data`; run it
 after every `convert`. Delete `thug2-decomp-thaw` and run it again to take them out.
 
-    node tools/pipeline/thaw_levels/thaw_levels.ts selfcheck
+    node thaw_levels/thaw_levels.ts selfcheck
 
 reads THUG2's LA scene / collision / textures and writes them back (byte-identical), then every file of every THAW
 `_net` archive, the skies and qb.pak: qb files, textures, collision (written back byte-identical once the grid
@@ -66,12 +66,12 @@ header is off) and scenes (read and converted).
 - Areas with a `<zone>_Zone_Origin` node are moved by minus its position (all axes, in sixteenths), as THUGPRO's
   toolchain does, so that skater positions agree online (Vans Park excepted: THUGPRO left it in THAW's frame).
   `--frame recentre` gives the older frame (areas reaching past `--recentre` moved to the origin, x / z);
-  `--legacy-names` the older `thaw_<xx>` names. Layouts saved in the older levels: `node tools/pipeline/thaw_levels/migrate_layouts.ts --game <folder>`.
+  `--legacy-names` the older `thaw_<xx>` names. Layouts saved in the older levels: `node thaw_levels/migrate_layouts.ts --game <folder>`.
 - Game-mode nodes (TRG_CTF_*, TRG_Flag_*, TRG_KOTH*, TRG_Team_Restart) lose the zone prefix and the CTF / team flags
   are kept (THUG2's own flag models): capture the flag works with THUG2's net\ctf scripts.
-- `node tools/pipeline/thaw_levels/thugpro_compare.ts` compares the converted levels with an installed THUGPRO's (read only): node positions, crowns,
+- `node thaw_levels/thugpro_compare.ts` compares the converted levels with an installed THUGPRO's (read only): node positions, crowns,
   multiplayer restarts, game-mode nodes, collision faces unreachable through their BSP trees
-  (`tools/pipeline/level_port/col_check.ts`).
+  (`thug2-level-converter-core/level_port/col_check.ts`).
 - THAW's own models of the Vehicles the register lists (PC-THAW-14: Santa Monica's ferris car) from `data\models`:
   `<staging>\models\<path>.mdl.xbx / .tex.xbx / .col.xbx / .qb` (scene, textures, collision, the rails of its node
   array), copied into the overlay by make_menu_level. Santa Monica's wheel turns as in THAW and carries the cars

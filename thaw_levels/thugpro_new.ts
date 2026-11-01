@@ -1,5 +1,5 @@
 // NOT ORIGINAL - THUGPRO's own content in its THAW level ports, brought into ours BY REFERENCE (register rows TPN-THAW-1 ...
-// TPN-THAW-5 in tools/pipeline/compat/thugpro/README.md, the profile's `thugpro_new` section). The user's decision (2026-10-20, with
+// TPN-THAW-5 in thug2-level-converter-core/compat/thugpro/README.md, the profile's `thugpro_new` section). The user's decision (2026-10-20, with
 // Morten1337's permission to include THUGPRO's own content): everything THUGPRO made that is in no source game - its
 // meshes and collision, its nodes, its scripts - goes into our ports under the default `--compat thugpro`, kept apart
 // from the hand edits to THAW's data (TP-5 ... TP-9) so it is easy to see and to switch off (`--no-thugpro-new`).
@@ -33,15 +33,15 @@
 
 import * as fs from "node:fs";
 import { crc32 } from "node:zlib";
-import type * as compat from "../compat/compat.ts";
-import { Reader, Writer } from "../level_port/binio.ts";
-import * as prx from "../level_port/prx.ts";
-import * as qb from "../level_port/qb.ts";
-import { checksum, Name, type QbValue, Struct, Vector } from "../level_port/qb.ts";
-import * as tex from "../level_port/tex.ts";
-import * as thug2Col from "../level_port/thug2_col.ts";
-import * as thug2Scene from "../level_port/thug2_scene.ts";
-import { pyJoin } from "../lib/py.ts";
+import type * as compat from "thug2-level-converter-core/compat/compat.ts";
+import { Reader, Writer } from "thug2-level-converter-core/level_port/binio.ts";
+import * as prx from "thug2-level-converter-core/level_port/prx.ts";
+import * as qb from "thug2-level-converter-core/level_port/qb.ts";
+import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import * as tex from "thug2-level-converter-core/level_port/tex.ts";
+import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
+import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
+import { pyJoin } from "thug2-level-converter-core/lib/py.ts";
 import { encodeValue, nameValue } from "./thugpro_edits.ts";
 
 export type Op = "add" | "set" | "remove";
