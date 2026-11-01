@@ -36,8 +36,9 @@ import * as qb from "thug2-level-converter-core/level_port/qb.ts";
 import { checksum, type Entry, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
 import * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
 import { type Context, type ObjectContext, Tok } from "thug2-level-converter-core/level_port/script_port.ts";
-import { encodeLatin1, Float, hex8, pyRepr } from "thug2-level-converter-core/lib/py.ts";
+import { Float } from "thug2-level-converter-core/lib/numbers.ts";
 import { pack, unpackNumbers } from "thug2-level-converter-core/lib/struct.ts";
+import { encodeLatin1, hex8, valueText } from "thug2-level-converter-core/lib/text.ts";
 import * as thaw from "./thaw.ts";
 
 // THAW's game script files brought along (besides the level's own): the gap helpers (Gap_Gen_Rail...).
@@ -1098,7 +1099,7 @@ export function portScripts(
     const bytes = [...out.values()].reduce((s, code) => s + code.length, 0);
     const leftOutTotal = [...tr.leftOut.values()].reduce((s, n) => s + n, 0);
     const report =
-        `scripts: ${out.size} brought along (${bytes} bytes), ${dropped} trigger scripts not; made ${pyRepr(counts)}; ` +
+        `scripts: ${out.size} brought along (${bytes} bytes), ${dropped} trigger scripts not; made ${valueText(counts)}; ` +
         `left out ${leftOutTotal} statements: ${worst
             .slice(0, 12)
             .map(([reason, n]) => `${reason} x${n}`)

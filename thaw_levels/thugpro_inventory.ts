@@ -20,9 +20,10 @@ import * as qb from "thug2-level-converter-core/level_port/qb.ts";
 import { Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
-import { helpFromHeader } from "thug2-level-converter-core/lib/cli.ts";
+import { exitWith, helpFromHeader, isMain, print, runMain } from "thug2-level-converter-core/lib/cli.ts";
 import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
-import { hex8, isMain, print, pyExit, pyJsonDumps, runMain, writeTextPy } from "thug2-level-converter-core/lib/py.ts";
+import { jsonText } from "thug2-level-converter-core/lib/json.ts";
+import { hex8, writeText } from "thug2-level-converter-core/lib/text.ts";
 import * as thaw from "../thaw/thaw.ts";
 import {
     COMPAT,
@@ -139,7 +140,7 @@ function inventory(zone: string, thawFolder: string, thugpro: string, names: Nam
 
     // THAW: the full archive with its _sfx sub-zone
     const pak = findPath(resolveInstall(thawFolder, "thaw"), "data", "worlds", "worldzones", zone, `${zone}.pak.wpc`);
-    if (pak === null) pyExit(`no THAW ${zone}.pak.wpc in ${thawFolder}`);
+    if (pak === null) exitWith(`no THAW ${zone}.pak.wpc in ${thawFolder}`);
     const thawNodes: Struct[] = [];
     const sfxNodes = new Set<string>();
     const thawScripts = new Map<string, Set<string>>();
@@ -174,7 +175,7 @@ function inventory(zone: string, thawFolder: string, thugpro: string, names: Nam
     const shift = thugproFrame(zone, main, names);
     // THUGPRO
     const scriptsPrx = findPath(thugpro, "data", "pre", `${key}_scripts.prx`);
-    if (scriptsPrx === null) pyExit(`THUGPRO has no ${key}_scripts.prx`);
+    if (scriptsPrx === null) exitWith(`THUGPRO has no ${key}_scripts.prx`);
     const tpNodes: Struct[] = [];
     const tpScripts = new Map<string, Set<string>>();
     for (const [file, data] of prx.entries(scriptsPrx)) {
@@ -389,12 +390,12 @@ function compareOurs(zone: string, levels: string, thugpro: string, names: Names
         return l.startsWith(`${low}_`) && MULTIPLAYER_NAME.test(l.slice(low.length + 1)) ? l.slice(low.length + 1) : l;
     };
     const qbFile = path.join(levels, mine, `${mine}.qb`);
-    if (!fs.existsSync(qbFile)) pyExit(`not converted: ${qbFile}`);
+    if (!fs.existsSync(qbFile)) exitWith(`not converted: ${qbFile}`);
     const [ours, ourNames] = nodeArray(fs.readFileSync(qbFile), qbFile);
     for (const [k, v] of ourNames) if (!names.has(k)) names.set(k, v);
     const scriptsPrx = findPath(thugpro, "data", "pre", `${key}_scripts.prx`);
     const data = scriptsPrx === null ? null : prx.find(scriptsPrx, `levels\\${key}\\${key}.qb`);
-    if (data === null) pyExit(`THUGPRO has no levels\\${key}\\${key}.qb`);
+    if (data === null) exitWith(`THUGPRO has no levels\\${key}\\${key}.qb`);
     const [theirs, theirNames] = nodeArray(data, key);
     for (const [k, v] of theirNames) if (!names.has(k)) names.set(k, v);
     const by = (array: readonly QbValue[]): Map<string, Struct> => {
@@ -593,7 +594,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
         parsed = parseArgs({ args: [...argv], options: OPTIONS, allowPositionals: true, strict: true });
     } catch (e) {
         process.stderr.write(`${USAGE}\nthugpro_inventory.ts: error: ${(e as Error).message}\n`);
-        pyExit(2);
+        exitWith(2);
     }
     const v = parsed.values;
     const thawFolder = v.thaw ?? "C:\\Games\\THAW";
@@ -625,7 +626,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
         results[zone] = r;
         for (const line of summary(r)) print(line);
     }
-    if (v.json) writeTextPy(v.json, pyJsonDumps(results, 1));
+    if (v.json) writeText(v.json, jsonText(results, 1));
     return 0;
 }
 

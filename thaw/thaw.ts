@@ -32,8 +32,9 @@ import {
 import type * as tex from "thug2-level-converter-core/level_port/tex.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
-import { decodeLatin1, Float, pyStrip } from "thug2-level-converter-core/lib/py.ts";
+import { Float } from "thug2-level-converter-core/lib/numbers.ts";
 import { unpackNumbers } from "thug2-level-converter-core/lib/struct.ts";
+import { decodeLatin1, stripSpace } from "thug2-level-converter-core/lib/text.ts";
 
 const hex = (n: number): string => n.toString(16).toUpperCase();
 const u32At = (data: Uint8Array, at: number): number => unpackNumbers("<I", data, at)[0]!;
@@ -139,7 +140,7 @@ export function loadNames(thaw: string): Map<number, string> {
     const names = new Map<number, string>();
     for (const [, data] of pakFiles(path.join(resolveInstall(thaw, "thaw"), "data", "pak", "dbg.pak.wpc"))) {
         for (const match of decodeLatin1(data).matchAll(NAME_LINE)) {
-            const text = pyStrip(match[2]!);
+            const text = stripSpace(match[2]!);
             const value = Number.parseInt(match[1]!, 16);
             // (the first name of a checksum wins; one that doesn't hash to it is kept only when it's the first - the
             // checksum is taken only for a new one: a non-ASCII name raises there, as in Python)

@@ -1,12 +1,13 @@
 // NOT ORIGINAL - tests of the THAW converter's pure parts and the Python helpers it brought into thug2-level-converter-core/lib (formatG,
-// pySplit, pyTitle, pySplitlines' keepends), against values Python 3.14 gave (no game data).
+// splitWords, titleCase, splitLines' keepends), against values Python 3.14 gave (no game data).
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { checksum, Name, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
 import { zfightGates } from "thug2-level-converter-core/level_port/zfight_gate.ts";
-import { formatG, pySplit, pySplitlines, pyTitle } from "thug2-level-converter-core/lib/py.ts";
+import { formatG } from "thug2-level-converter-core/lib/numbers.ts";
 import { pack } from "thug2-level-converter-core/lib/struct.ts";
+import { splitLines, splitWords, titleCase } from "thug2-level-converter-core/lib/text.ts";
 import { inlineStruct, statements, tokens } from "../thaw/thaw.ts";
 import { RAIL_SCRIPTS, scriptToks } from "../thaw/thaw_scripts.ts";
 import {
@@ -35,11 +36,11 @@ test("formatG is Python's %g / %.9g: exact value, halves to even", () => {
     assert.equal(formatG(Number.POSITIVE_INFINITY), "inf");
 });
 
-test("pySplit, pyTitle, pySplitlines(keepends) are Python's", () => {
-    assert.deepEqual(pySplit(" a\tb\x1c c\xa0d  "), ["a", "b", "c", "d"]);
-    assert.equal(pyTitle("EAST LOS ANGELES"), "East Los Angeles");
-    assert.equal(pyTitle("it's x2b"), "It'S X2B");
-    assert.deepEqual(pySplitlines("a\r\nb\x0bc\n\nd", true), ["a\r\n", "b\x0b", "c\n", "\n", "d"]);
+test("splitWords, titleCase, splitLines(keepends) are Python's", () => {
+    assert.deepEqual(splitWords(" a\tb\x1c c\xa0d  "), ["a", "b", "c", "d"]);
+    assert.equal(titleCase("EAST LOS ANGELES"), "East Los Angeles");
+    assert.equal(titleCase("it's x2b"), "It'S X2B");
+    assert.deepEqual(splitLines("a\r\nb\x0bc\n\nd", true), ["a\r\n", "b\x0b", "c\n", "\n", "d"]);
 });
 
 test("frames: whole sixteenths, BSP splits moved, level names", () => {

@@ -30,8 +30,9 @@ import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-conver
 import type * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
+import { exitWith } from "thug2-level-converter-core/lib/cli.ts";
 import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
-import { pyExit, pyRound } from "thug2-level-converter-core/lib/py.ts";
+import { roundTo } from "thug2-level-converter-core/lib/numbers.ts";
 import * as thaw from "../thaw/thaw.ts";
 import {
     COMPAT,
@@ -152,7 +153,7 @@ export interface Sources {
 export function thawScriptNames(thawFolder: string, names: Map<number, string>): Set<number> {
     const out = new Set<number>();
     const pak = findPath(resolveInstall(thawFolder, "thaw"), "data", "pak", "qb.pak.wpc");
-    if (pak === null) pyExit(`${thawFolder}: no qb.pak.wpc`);
+    if (pak === null) exitWith(`${thawFolder}: no qb.pak.wpc`);
     for (const [entry, data] of thaw.pakFiles(pak)) {
         if (![".qb", ".nqb", ".sqb"].includes(entry.extension)) continue;
         try {
@@ -242,7 +243,7 @@ export function fitRigid(
     const bb = box(b);
     const tries: Transform[] = [...candidates];
     if ([0, 1, 2].every((k) => Math.abs(ba[2 * k + 1]! - ba[2 * k]! - (bb[2 * k + 1]! - bb[2 * k]!)) <= FIT)) {
-        tries.push({ translate: [0, 1, 2].map((k) => pyRound(bb[2 * k]! - ba[2 * k]! - shift[k]!, 4)) });
+        tries.push({ translate: [0, 1, 2].map((k) => roundTo(bb[2 * k]! - ba[2 * k]! - shift[k]!, 4)) });
     }
     if (a.length === b.length) {
         const t = fitIndexed(a, b, shift);
@@ -266,12 +267,12 @@ function fitIndexed(a: Points, b: Points, shift: readonly number[]): Transform |
         cross += bx * az - bz * ax;
     });
     const angle = Math.atan2(cross, dot);
-    const round = (v: readonly number[]): number[] => v.map((x) => pyRound(x, 4));
+    const round = (v: readonly number[]): number[] => v.map((x) => roundTo(x, 4));
     const t: Transform = {
         translate: round([0, 1, 2].map((k) => cb[k]! - ca[k]! - shift[k]!)),
     };
     if (Math.abs(angle) > 1e-4) {
-        t.rotate_y = pyRound(angle, 6);
+        t.rotate_y = roundTo(angle, 6);
         t.pivot = round(ca);
     }
     return worst(a, b, (p) => inFrame(movePoint(p, t))) <= FIT ? t : null;
@@ -329,7 +330,7 @@ export function extractZone(zone: string, src: Sources): ZoneExtract {
         zone,
         `${zone}.pak.wpc`,
     );
-    if (netPak === null || fullPak === null) pyExit(`no THAW ${zone} archives in ${src.thawFolder}`);
+    if (netPak === null || fullPak === null) exitWith(`no THAW ${zone} archives in ${src.thawFolder}`);
     const netFiles = zoneFiles(netPak);
     const net = zoneArray(netFiles, zone, names);
     const shift = thugproFrame(zone, net, names);
@@ -391,7 +392,7 @@ export function extractZone(zone: string, src: Sources): ZoneExtract {
     const key = COMPAT.levelNames.get(zone.toUpperCase()) ?? low;
     const scriptsPrx = findPath(src.thugpro, "data", "pre", `${key}_scripts.prx`);
     const data = scriptsPrx === null ? null : prx.find(scriptsPrx, `levels\\${key}\\${key}.qb`);
-    if (data === null) pyExit(`THUGPRO has no levels\\${key}\\${key}.qb`);
+    if (data === null) exitWith(`THUGPRO has no levels\\${key}\\${key}.qb`);
     const [theirs, theirNames] = nodeArray(data, `${key}.qb`);
     for (const [k, v] of theirNames) if (!names.has(k)) names.set(k, v);
     const tpScene = new Map<number, thug2Scene.Sector>();
@@ -444,7 +445,7 @@ export function extractZone(zone: string, src: Sources): ZoneExtract {
     const d3 = (a: readonly number[], b: readonly number[]): number =>
         Math.max(...[0, 1, 2].map((k) => Math.abs(a[k]! - b[k]!)));
     const inFrame = (p: readonly number[]): number[] => [0, 1, 2].map((k) => p[k]! + shift[k]!);
-    const toThaw = (p: readonly number[]): number[] => [0, 1, 2].map((k) => pyRound(p[k]! - shift[k]!, 4));
+    const toThaw = (p: readonly number[]): number[] => [0, 1, 2].map((k) => roundTo(p[k]! - shift[k]!, 4));
     const linkNames = (n: Struct, byIndex: (i: number) => string | null): string[] | null => {
         const l = n.get("Links");
         if (!Array.isArray(l)) return null;
@@ -481,7 +482,7 @@ export function extractZone(zone: string, src: Sources): ZoneExtract {
         const po = posOf(o);
         const pt = posOf(t);
         if (!isSpawn && po !== null && pt !== null && d3(inFrame(po), pt) > MOVED) move.pos = toThaw(pt);
-        if (!isSpawn && d3(angOf(o), angOf(t)) > ANGLE) move.angles = angOf(t).map((x) => pyRound(x, 6));
+        if (!isSpawn && d3(angOf(o), angOf(t)) > ANGLE) move.angles = angOf(t).map((x) => roundTo(x, 6));
         const lo = linkNames(o, thawIndexName);
         const lt = linkNames(t, tpIndexName);
         if ((lo ?? []).join(",").toLowerCase() !== (lt ?? []).join(",").toLowerCase() && !(lt ?? []).includes("?")) {
@@ -809,12 +810,12 @@ export function extractZone(zone: string, src: Sources): ZoneExtract {
         const po = o && posOf(o);
         const pt = t && posOf(t);
         if (!o || !t || !po || !pt) return [];
-        const translate = toThaw(pt).map((x, k) => pyRound(x - po[k]!, 4));
+        const translate = toThaw(pt).map((x, k) => roundTo(x - po[k]!, 4));
         const turn = angOf(t)[1]! - angOf(o)[1]!;
         const out: Transform[] = [{ translate }];
         if (Math.abs(turn) > ANGLE) {
             for (const sign of [1, -1])
-                out.unshift({ translate, rotate_y: pyRound(sign * turn, 6), pivot: po.map((x) => pyRound(x, 4)) });
+                out.unshift({ translate, rotate_y: roundTo(sign * turn, 6), pivot: po.map((x) => roundTo(x, 4)) });
         }
         return out;
     };

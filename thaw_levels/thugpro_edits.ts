@@ -22,7 +22,7 @@ import { FormatError } from "thug2-level-converter-core/level_port/binio.ts";
 import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
 import type * as tex from "thug2-level-converter-core/level_port/tex.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
-import { Float, pyIntHex } from "thug2-level-converter-core/lib/py.ts";
+import { Float, parseHexInt } from "thug2-level-converter-core/lib/numbers.ts";
 import type * as thaw from "../thaw/thaw.ts";
 
 // --- the data ---------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ export function zoneEdits(sections: Record<string, Record<string, unknown>>, zon
 // --- qb values <-> JSON -----------------------------------------------------------------------------------------
 
 // A name's checksum from its text ("#1234ABCD" for one without a known text).
-export const nameValue = (text: string): number => (text.startsWith("#") ? pyIntHex(text.slice(1)) : checksum(text));
+export const nameValue = (text: string): number => (text.startsWith("#") ? parseHexInt(text.slice(1)) : checksum(text));
 
 export function nameOfValue(value: number, names: ReadonlyMap<number, string>): string {
     const text = names.get(value);

@@ -27,20 +27,11 @@ import * as qb from "thug2-level-converter-core/level_port/qb.ts";
 import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
 import * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
-import { helpFromHeader } from "thug2-level-converter-core/lib/cli.ts";
+import { exitWith, helpFromHeader, isMain, print, runMain } from "thug2-level-converter-core/lib/cli.ts";
 import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
-import {
-    Float,
-    formatFixed,
-    hex8,
-    isMain,
-    print,
-    pyExit,
-    pyJsonDumps,
-    pyRound,
-    runMain,
-    writeTextPy,
-} from "thug2-level-converter-core/lib/py.ts";
+import { jsonText } from "thug2-level-converter-core/lib/json.ts";
+import { Float, formatFixed, roundTo } from "thug2-level-converter-core/lib/numbers.ts";
+import { hex8, writeText } from "thug2-level-converter-core/lib/text.ts";
 import * as compat from "thug2-thugpro-compat/profile.ts";
 import {
     CTF_NAMES,
@@ -142,7 +133,7 @@ export function compare(zone: string, oursDir: string, thugpro: string): Result 
     out.nodes_thugpro = theirs.length;
     out.shared = shared;
     out.same_place = same;
-    out.worst = [new Float(pyRound(worst[0], 3)), worst[1]];
+    out.worst = [new Float(roundTo(worst[0], 3)), worst[1]];
     out.crowns = sameSequence(sequence(ours, isCrown), sequence(theirs, isCrown))[0];
     out.mp_restarts = sameSequence(sequence(ours, isMpRestart), sequence(theirs, isMpRestart))[0];
     // TP-4: every network spawn (Multiplayer / Horse / CTF / Team), its place and its types, in order
@@ -268,11 +259,11 @@ export function extractSpawns(
     const key = THUGPRO_NAMES.get(zone) ?? zone.toLowerCase();
     const scripts = prxFile(thugpro, `${key}_scripts.prx`);
     const data = scripts === null ? null : prx.find(scripts, `levels\\${key}\\${key}.qb`);
-    if (data === null) pyExit(`THUGPRO has no levels\\${key}\\${key}.qb`);
+    if (data === null) exitWith(`THUGPRO has no levels\\${key}\\${key}.qb`);
     const [theirs, theirNames] = nodeArray(data, `${key}.qb`);
     for (const [k, v] of theirNames) if (!names.has(k)) names.set(k, v);
     const pak = zonePak(thawFolder, zone);
-    if (pak === null) pyExit(`no THAW ${zone}_net.pak.wpc in ${thawFolder}`);
+    if (pak === null) exitWith(`no THAW ${zone}_net.pak.wpc in ${thawFolder}`);
     const own = zoneArray(zoneFiles(pak), zone, names);
     const shift = thugproFrame(zone, own, names); // (THUGPRO's frame: the profile's - setCompat("thugpro"))
     multiplayerNames(own, zone, names);
@@ -290,7 +281,7 @@ export function extractSpawns(
     }
     const out: SpawnExtract = { edits: [], notApplied: [], notes: [], order: [] };
     let added = 0;
-    const round = (v: readonly number[]): number[] => v.map((x) => pyRound(x, 4));
+    const round = (v: readonly number[]): number[] => v.map((x) => roundTo(x, 4));
     const seen = new Set<number>();
     for (const t of theirs) {
         if (!(t instanceof Struct) || !isRestart(t)) continue;
@@ -484,7 +475,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
         parsed = parseArgs({ args: [...argv], options: OPTIONS, allowPositionals: true, strict: true });
     } catch (e) {
         process.stderr.write(`${USAGE}\nthugpro_compare.ts: error: ${(e as Error).message}\n`);
-        pyExit(2);
+        exitWith(2);
     }
     const v = parsed.values;
     const thug2 = resolveInstall(v.thug2 ?? "C:\\Games\\THUG2\\Game", "thug2");
@@ -519,7 +510,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
         const shared = r.shared as number;
         if (shared - (r.same_place as number) > Math.floor(shared / 100) || r.crowns !== "same") bad += 1;
     }
-    if (v.json) writeTextPy(v.json, pyJsonDumps(results, 1));
+    if (v.json) writeText(v.json, jsonText(results, 1));
     return bad ? 1 : 0;
 }
 

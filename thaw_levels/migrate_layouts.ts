@@ -17,17 +17,9 @@ import * as path from "node:path";
 import { parseArgs } from "node:util";
 import { migrateText } from "thug2-level-converter-core/level_port/layouts.ts";
 import * as qb from "thug2-level-converter-core/level_port/qb.ts";
-import { helpFromHeader } from "thug2-level-converter-core/lib/cli.ts";
-import {
-    formatG,
-    hex8,
-    isMain,
-    print,
-    pyExit,
-    pyParseFloat,
-    readTextPy,
-    runMain,
-} from "thug2-level-converter-core/lib/py.ts";
+import { exitWith, helpFromHeader, isMain, print, runMain } from "thug2-level-converter-core/lib/cli.ts";
+import { formatG, parseFloatStrict } from "thug2-level-converter-core/lib/numbers.ts";
+import { hex8, readText } from "thug2-level-converter-core/lib/text.ts";
 import * as thaw from "../thaw/thaw.ts";
 import {
     findPath,
@@ -52,22 +44,22 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
         parsed = parseArgs({ args: [...argv], options: OPTIONS, allowPositionals: true, strict: true });
     } catch (e) {
         process.stderr.write(`${USAGE}\nmigrate_layouts.ts: error: ${(e as Error).message}\n`);
-        pyExit(2);
+        exitWith(2);
     }
     const v = parsed.values;
     if (v.game === undefined) {
         process.stderr.write(`${USAGE}\nmigrate_layouts.ts: error: the following arguments are required: --game\n`);
-        pyExit(2);
+        exitWith(2);
     }
     let recentre = 20000.0;
     if (v.recentre !== undefined) {
         try {
-            recentre = pyParseFloat(v.recentre);
+            recentre = parseFloatStrict(v.recentre);
         } catch {
             process.stderr.write(
                 `${USAGE}\nmigrate_layouts.ts: error: argument --recentre: invalid float value: '${v.recentre}'\n`,
             );
-            pyExit(2);
+            exitWith(2);
         }
     }
     const thawFolder = v.thaw ?? "C:\\Games\\THAW";
@@ -97,7 +89,7 @@ export function main(argv: readonly string[] = process.argv.slice(2)): number {
         const old = recentreShift(thaw.readCol(need(files, ".col"), `${zone}.col`), recentre);
         const now = frameShift(zone, zoneArray(files, zone, names), names);
         const d = [0, 1, 2].map((k) => now[k]! - old[k]!);
-        const text = readTextPy(oldPath);
+        const text = readText(oldPath);
         const [changed, moved] = migrateText(text, oldScene, newScene, d, newName);
         print(
             `${zone}: ${oldName} -> ${newName}, moved by (${formatG(d[0]!)}, ${formatG(d[1]!)}, ${formatG(d[2]!)}): ` +

@@ -29,22 +29,12 @@ import * as staging from "thug2-level-converter-core/level_port/staging.ts";
 import * as tex from "thug2-level-converter-core/level_port/tex.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import * as thug2Scene from "thug2-level-converter-core/level_port/thug2_scene.ts";
+import { exitWith, isMain, print, runMain } from "thug2-level-converter-core/lib/cli.ts";
 import { findPath, resolveInstall } from "thug2-level-converter-core/lib/install.ts";
 import { requireNs } from "thug2-level-converter-core/lib/neverscript.ts";
-import {
-    formatG,
-    isMain,
-    print,
-    pyExit,
-    pyMax,
-    pyMin,
-    pyParseFloat,
-    pyRepr,
-    pyTitle,
-    roundHalfEven,
-    runMain,
-} from "thug2-level-converter-core/lib/py.ts";
+import { formatG, maxOf, minOf, parseFloatStrict, roundHalfEven } from "thug2-level-converter-core/lib/numbers.ts";
 import { StructError } from "thug2-level-converter-core/lib/struct.ts";
+import { titleCase, valueText } from "thug2-level-converter-core/lib/text.ts";
 import * as compat from "thug2-thugpro-compat/profile.ts";
 import { applyNodeFlags, nodeFlagScript } from "../thaw/node_flags.ts";
 import * as thaw from "../thaw/thaw.ts";
@@ -1448,7 +1438,7 @@ export function convertLevelNodes(
     fs.mkdirSync(outDir, { recursive: true });
     writeLevelQb(ns, text, path.join(outDir, `${name}.qb`), scripts, names, ourReplaced);
     report.push(
-        `  nodes: ${converted.length} of ${array.length} kept ${pyRepr(stats)}; ${killZones} kill zones, ` +
+        `  nodes: ${converted.length} of ${array.length} kept ${valueText(stats)}; ${killZones} kill zones, ` +
             `${breakingNames.size} breakables; ${lods.size} LOD sectors left out`,
     );
     if (scriptReport) report.push(`  ${scriptReport}`);
@@ -1463,8 +1453,8 @@ export function convertLevelNodes(
 export function recentreShift(col: thug2Col.ColFile, limit: number): number[] {
     const boxes = col.objects.filter((o) => o.faces.length).map((o) => o.bbox);
     if (!boxes.length) return [0.0, 0.0, 0.0];
-    const lo = [0, 1, 2].map((k) => pyMin(boxes.map((b) => b[k]!)));
-    const hi = [0, 1, 2].map((k) => pyMax(boxes.map((b) => b[k + 4]!)));
+    const lo = [0, 1, 2].map((k) => minOf(boxes.map((b) => b[k]!)));
+    const hi = [0, 1, 2].map((k) => maxOf(boxes.map((b) => b[k + 4]!)));
     const far = (v: number[]): number => Math.max(Math.abs(v[0]!), Math.abs(v[2]!));
     if (far(lo) < limit && far(hi) < limit) return [0.0, 0.0, 0.0];
     return [-16.0 * roundHalfEven((lo[0]! + hi[0]!) / 32.0), 0.0, -16.0 * roundHalfEven((lo[2]! + hi[2]!) / 32.0)];
@@ -1544,7 +1534,7 @@ function cmdConvert(args: Args): void {
     const out = args.out || path.join(args.thug2, STAGING);
     args.ns = requireNs(args.ns); // (--ns, NEVERSCRIPT, ... or `npx thug2-neverscript fetch` - lib/neverscript.ts)
     if (!findPath(resolveInstall(args.thaw, "thaw"), "data", "pak", "dbg.pak.wpc"))
-        pyExit(`${args.thaw}: THAW's data\\pak not found`);
+        exitWith(`${args.thaw}: THAW's data\\pak not found`);
     const names = thaw.loadNames(args.thaw);
     const structs = levelStructs(args.thaw, names);
     const nodeFlags = nonStoryNodeFlags(args.thaw, names);
@@ -1561,7 +1551,7 @@ function cmdConvert(args: Args): void {
     for (const requested of wanted) {
         const info = BY_ZONE.get(requested.toLowerCase()) ?? BY_ZONE.get(`z_${requested.toLowerCase()}`);
         if (!info) {
-            pyExit(`${requested}: not a THAW level this tool knows (${LEVELS.map((l) => l[0]).join(", ")})`);
+            exitWith(`${requested}: not a THAW level this tool knows (${LEVELS.map((l) => l[0]).join(", ")})`);
         }
         const [zone, sign, location, icon, levelNum] = info;
         const file = zonePak(args.thaw, zone);
@@ -1717,7 +1707,7 @@ function cmdConvert(args: Args): void {
             level: name,
             sky,
             display: `THAW ${sign}`,
-            name: typeof structName === "string" ? structName : pyTitle(sign),
+            name: typeof structName === "string" ? structName : titleCase(sign),
             game: "THAW",
             location,
             icon,
@@ -1804,7 +1794,7 @@ const USAGE =
 // argparse's error: the usage and the message on stderr, exit code 2.
 function usageError(message: string): never {
     process.stderr.write(`${USAGE}\nthaw_levels.ts: error: ${message}\n`);
-    pyExit(2);
+    exitWith(2);
 }
 
 export function parseCommandLine(argv: readonly string[]): Args {
@@ -1817,7 +1807,7 @@ export function parseCommandLine(argv: readonly string[]): Args {
     const v = parsed.values;
     if (v.help) {
         print(USAGE);
-        pyExit(0);
+        exitWith(0);
     }
     const [command, ...levels] = parsed.positionals;
     if (command !== "convert" && command !== "selfcheck") {
@@ -1838,7 +1828,7 @@ export function parseCommandLine(argv: readonly string[]): Args {
     let recentre = 20000.0;
     if (v.recentre !== undefined) {
         try {
-            recentre = pyParseFloat(v.recentre);
+            recentre = parseFloatStrict(v.recentre);
         } catch {
             usageError(`argument --recentre: invalid float value: '${v.recentre}'`);
         }
