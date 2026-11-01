@@ -29,7 +29,7 @@ import {
     readTextPy,
     runMain,
 } from "thug2-level-converter-core/lib/py.ts";
-import * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
+import * as thaw from "../thaw/thaw.ts";
 import {
     findPath,
     frameShift,

@@ -27,16 +27,16 @@
 //                 peds_cars.FALLBACK_CAR.
 
 import * as fs from "node:fs";
-import { FormatError } from "../level_port/binio.ts";
-import * as nodes from "../level_port/nodes.ts";
-import * as pedRigs from "../level_port/ped_rigs.ts";
-import * as pedsCars from "../level_port/peds_cars.ts";
-import * as qb from "../level_port/qb.ts";
-import { checksum, type Entry, Name, type QbValue, Struct, Vector } from "../level_port/qb.ts";
-import * as scriptPort from "../level_port/script_port.ts";
-import { type Context, type ObjectContext, Tok } from "../level_port/script_port.ts";
-import { encodeLatin1, Float, hex8, pyRepr } from "../lib/py.ts";
-import { pack, unpackNumbers } from "../lib/struct.ts";
+import { FormatError } from "thug2-level-converter-core/level_port/binio.ts";
+import * as nodes from "thug2-level-converter-core/level_port/nodes.ts";
+import * as pedRigs from "thug2-level-converter-core/level_port/ped_rigs.ts";
+import * as pedsCars from "thug2-level-converter-core/level_port/peds_cars.ts";
+import * as qb from "thug2-level-converter-core/level_port/qb.ts";
+import { checksum, type Entry, Name, type QbValue, Struct, Vector } from "thug2-level-converter-core/level_port/qb.ts";
+import * as scriptPort from "thug2-level-converter-core/level_port/script_port.ts";
+import { type Context, type ObjectContext, Tok } from "thug2-level-converter-core/level_port/script_port.ts";
+import { encodeLatin1, Float, hex8, pyRepr } from "thug2-level-converter-core/lib/py.ts";
+import { pack, unpackNumbers } from "thug2-level-converter-core/lib/struct.ts";
 import * as thaw from "./thaw.ts";
 
 // THAW's game script files brought along (besides the level's own): the gap helpers (Gap_Gen_Rail...).

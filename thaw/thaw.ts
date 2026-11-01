@@ -17,15 +17,22 @@
 // - Scene (.geom): readGeom below.
 
 import * as fs from "node:fs";
-import { FormatError, Reader } from "../level_port/binio.ts";
-import * as prx from "../level_port/prx.ts";
-import * as qb from "../level_port/qb.ts";
-import { checksum, Name, type QbValue, type Statement, Struct, Vector } from "../level_port/qb.ts";
-import type * as tex from "../level_port/tex.ts";
-import * as thug2Col from "../level_port/thug2_col.ts";
-import { resolveInstall } from "../lib/install.ts";
-import { decodeLatin1, Float, pyJoin, pyStrip } from "../lib/py.ts";
-import { unpackNumbers } from "../lib/struct.ts";
+import { FormatError, Reader } from "thug2-level-converter-core/level_port/binio.ts";
+import * as prx from "thug2-level-converter-core/level_port/prx.ts";
+import * as qb from "thug2-level-converter-core/level_port/qb.ts";
+import {
+    checksum,
+    Name,
+    type QbValue,
+    type Statement,
+    Struct,
+    Vector,
+} from "thug2-level-converter-core/level_port/qb.ts";
+import type * as tex from "thug2-level-converter-core/level_port/tex.ts";
+import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
+import { resolveInstall } from "thug2-level-converter-core/lib/install.ts";
+import { decodeLatin1, Float, pyJoin, pyStrip } from "thug2-level-converter-core/lib/py.ts";
+import { unpackNumbers } from "thug2-level-converter-core/lib/struct.ts";
 
 const hex = (n: number): string => n.toString(16).toUpperCase();
 const u32At = (data: Uint8Array, at: number): number => unpackNumbers("<I", data, at)[0]!;

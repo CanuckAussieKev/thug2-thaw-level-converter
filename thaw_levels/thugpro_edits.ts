@@ -23,7 +23,7 @@ import { checksum, Name, type QbValue, Struct, Vector } from "thug2-level-conver
 import type * as tex from "thug2-level-converter-core/level_port/tex.ts";
 import * as thug2Col from "thug2-level-converter-core/level_port/thug2_col.ts";
 import { Float, pyIntHex } from "thug2-level-converter-core/lib/py.ts";
-import type * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
+import type * as thaw from "../thaw/thaw.ts";
 
 // --- the data ---------------------------------------------------------------------------------------------------
 

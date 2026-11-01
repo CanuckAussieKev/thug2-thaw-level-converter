@@ -45,9 +45,9 @@ import {
     runMain,
 } from "thug2-level-converter-core/lib/py.ts";
 import { StructError } from "thug2-level-converter-core/lib/struct.ts";
-import { applyNodeFlags, nodeFlagScript } from "thug2-level-converter-core/thaw/node_flags.ts";
-import * as thaw from "thug2-level-converter-core/thaw/thaw.ts";
-import * as thawScripts from "thug2-level-converter-core/thaw/thaw_scripts.ts";
+import { applyNodeFlags, nodeFlagScript } from "../thaw/node_flags.ts";
+import * as thaw from "../thaw/thaw.ts";
+import * as thawScripts from "../thaw/thaw_scripts.ts";
 import * as thugproEdits from "./thugpro_edits.ts";
 import * as thugproNew from "./thugpro_new.ts";
 

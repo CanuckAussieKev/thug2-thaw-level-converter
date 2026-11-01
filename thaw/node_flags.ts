@@ -1,8 +1,8 @@
 // NOT ORIGINAL - THAW's node flags (moved from thaw_levels.ts with the converters' split: Project 8's converter,
 // thp8/thp8_levels.ts, reads its flags with the same scripts' form).
 
-import { FormatError } from "../level_port/binio.ts";
-import { checksum, Name, type QbValue, Struct } from "../level_port/qb.ts";
+import { FormatError } from "thug2-level-converter-core/level_port/binio.ts";
+import { checksum, Name, type QbValue, Struct } from "thug2-level-converter-core/level_port/qb.ts";
 import * as thaw from "./thaw.ts";
 
 // THAW's story areas make much of their geometry, rails and objects from node flags: a node with

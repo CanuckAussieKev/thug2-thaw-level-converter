@@ -7,8 +7,8 @@ import { checksum, Name, Struct, Vector } from "thug2-level-converter-core/level
 import { zfightGates } from "thug2-level-converter-core/level_port/zfight_gate.ts";
 import { formatG, pySplit, pySplitlines, pyTitle } from "thug2-level-converter-core/lib/py.ts";
 import { pack } from "thug2-level-converter-core/lib/struct.ts";
-import { inlineStruct, statements, tokens } from "thug2-level-converter-core/thaw/thaw.ts";
-import { RAIL_SCRIPTS, scriptToks } from "thug2-level-converter-core/thaw/thaw_scripts.ts";
+import { inlineStruct, statements, tokens } from "../thaw/thaw.ts";
+import { RAIL_SCRIPTS, scriptToks } from "../thaw/thaw_scripts.ts";
 import {
     applyNodeFlags,
     applySpawns,
