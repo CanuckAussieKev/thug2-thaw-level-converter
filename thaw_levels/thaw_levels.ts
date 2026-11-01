@@ -15,7 +15,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { parseArgs } from "node:util";
-import * as compat from "thug2-level-converter-core/compat/compat.ts";
 import { FormatError } from "thug2-level-converter-core/level_port/binio.ts";
 import * as common from "thug2-level-converter-core/level_port/common.ts";
 import * as geometry from "thug2-level-converter-core/level_port/geometry.ts";
@@ -45,6 +44,7 @@ import {
     runMain,
 } from "thug2-level-converter-core/lib/py.ts";
 import { StructError } from "thug2-level-converter-core/lib/struct.ts";
+import * as compat from "thug2-thugpro-compat/profile.ts";
 import { applyNodeFlags, nodeFlagScript } from "../thaw/node_flags.ts";
 import * as thaw from "../thaw/thaw.ts";
 import * as thawScripts from "../thaw/thaw_scripts.ts";
@@ -94,7 +94,7 @@ const BY_ZONE = new Map(LEVELS.map((level) => [level[0].toLowerCase(), level]));
 //   rule THUGPRO's toolchain applies (approach from Morten1337's thugpro_toolchain: find_zone_origin.py +
 //   node_position_patcher.py + THUGPRO_SceneObjectTool -origin).
 // What THUGPRO chose that isn't THAW data - four level names, Vans Park left unmoved, East LA's and Santa Monica's own
-// offsets - is in the compatibility profile thug2-level-converter-core/compat/thugpro/thaw_levels.json (its README.md lists every such
+// offsets - is in the compatibility profile thug2-thugpro-compat/thugpro/thaw_levels.json (its README.md lists every such
 // choice, TP-1...; --compat none leaves them out): setCompat() loads it.
 export const COMPAT = {
     levelNames: new Map<string, string>(),
@@ -122,7 +122,7 @@ export const newFor = (zone: string): thugproNew.ZoneNew | null => COMPAT.thugpr
 // TP-5...TP-9: the zone's edits from the profile, or null (none, or --compat none).
 export const editsFor = (zone: string): thugproEdits.ZoneEdits | null => thugproEdits.zoneEdits(COMPAT.edits, zone);
 
-// TP-4 (thug2-level-converter-core/compat/thugpro/thaw_levels.json `spawns`): a network spawn - a restart with Multiplayer / Horse / CTF /
+// TP-4 (thug2-thugpro-compat/thugpro/thaw_levels.json `spawns`): a network spawn - a restart with Multiplayer / Horse / CTF /
 // Team in its restart_types - as THUGPRO's THAW port has it where THUGPRO hand-edited it (moved it, changed its
 // types, or added it). `node`: our node of that name changed (pos / angles in THAW's own frame - the level's frame
 // shift is added as for every node; restart_types: the new list, [] = none); without `node`: a spawn added in our
@@ -145,7 +145,7 @@ export interface SpawnEdit {
     dropin?: boolean;
 }
 
-// The compatibility profile's THAW data (thug2-level-converter-core/compat/compat.ts): "thugpro" (the default) or "none".
+// The compatibility profile's THAW data (thug2-thugpro-compat/profile.ts): "thugpro" (the default) or "none".
 export function setCompat(name: string, withThugproNew = true): void {
     const profile = compat.load(name);
     COMPAT.thugproNew = withThugproNew ? thugproNew.fromEntries(compat.thugproNew(profile, "thaw_levels")) : {};
@@ -287,7 +287,7 @@ export function applySpawns(
 
 setCompat("thugpro"); // (the default, also for the tools that import this one: migrate_layouts, thugpro_compare)
 
-// Our own changes to THAW's levels - neither THAW's data nor THUGPRO's (thug2-level-converter-core/compat/thugpro/thaw_levels.json
+// Our own changes to THAW's levels - neither THAW's data nor THUGPRO's (thug2-thugpro-compat/thugpro/thaw_levels.json
 // `port_changes`, PC-THAW-n in its README.md): kept under --compat none; --no-port-changes leaves out all but the
 // ones a level needs to load (`required`). The converter asks by each entry's `switch`.
 export const PORT = { on: new Set<string>() };

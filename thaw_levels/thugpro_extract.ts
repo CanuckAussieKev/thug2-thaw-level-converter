@@ -1,5 +1,5 @@
 // NOT ORIGINAL - extracts THUGPRO's hand edits to its THAW level ports into the THUGPRO compatibility profile
-// (thug2-level-converter-core/compat/thugpro/thaw_levels.json: TP-5 node_edits, TP-6 node_flags, TP-7 removed, TP-8 added, TP-9 collision;
+// (thug2-thugpro-compat/thugpro/thaw_levels.json: TP-5 node_edits, TP-6 node_flags, TP-7 removed, TP-8 added, TP-9 collision;
 // what isn't applied - THUGPRO's own meshes, models and scripts - in `awaiting`). Run by
 // `node thaw_levels/thugpro_compare.ts --extract-thugpro` (with TP-4's spawns). Read only on both installs:
 // THUGPRO's <thugpro>\data\pre\<level>_scripts.prx / <level>scn.prx / <level>col.prx against THAW's own zone archives
@@ -114,7 +114,7 @@ export interface ZoneExtract {
     counts: Record<string, number>;
 }
 
-// TPN-THAW-1...TPN-THAW-5 register rows (thug2-level-converter-core/compat/thugpro/README.md "New in THUGPRO")
+// TPN-THAW-1...TPN-THAW-5 register rows (thug2-thugpro-compat/thugpro/README.md "New in THUGPRO")
 const N_GEOMETRY = "TPN-THAW-1"; // new meshes and collision
 const N_RESHAPED = "TPN-THAW-2"; // THAW's meshes / collision THUGPRO reshaped
 const N_NODES = "TPN-THAW-3"; // THUGPRO's content nodes

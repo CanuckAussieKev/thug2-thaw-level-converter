@@ -1,5 +1,5 @@
 // NOT ORIGINAL - THUGPRO's hand edits to its THAW level ports, applied to ours from the THUGPRO compatibility profile
-// (thug2-level-converter-core/compat/thugpro/thaw_levels.json, register entries TP-5...TP-9 in its README.md). The user's decision
+// (thug2-thugpro-compat/thugpro/thaw_levels.json, register entries TP-5...TP-9 in its README.md). The user's decision
 // (2026-10-20): everything THUGPRO changed in its versions of our ported levels is data in the profile, so that
 // `--compat thugpro` (the default) gives THUGPRO's level and `--compat none` THAW's own. The data is extracted from
 // THUGPRO's installed files against THAW's own by thaw_levels/thugpro_extract.ts (`thugpro_compare.ts

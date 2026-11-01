@@ -17,7 +17,8 @@ what is converted and what isn't: [thaw_levels/README.md](thaw_levels/README.md)
 
 Each pinned to a tagged commit in package.json (`git+https://git@github.com/...#<commit>`; one copy of each: every repository that uses one pins the same commit):
 
-- [thug2-level-converter-core](https://github.com/CanuckAussieKev/thug2-level-converter-core): THUG2's formats (scenes, collision, textures, archives, scripts), the level port's common steps and the THUGPRO compatibility register. THAW's own formats are read here (`thaw/`).
+- [thug2-level-converter-core](https://github.com/CanuckAussieKev/thug2-level-converter-core): THUG2's formats (scenes, collision, textures, archives, scripts), the level port's common steps. THAW's own formats are read here (`thaw/`).
+- [thug2-thugpro-compat](https://github.com/CanuckAussieKev/thug2-thugpro-compat): the THUGPRO compatibility profile (`--compat`): the register's THAW data - level names, frames, spawns, node and geometry edits, THUGPRO's own content by reference - and its port changes; `thaw_levels/thugpro_compare.ts --extract-thugpro` rewrites it (in a clone of that repository).
 
 Used by: Project 8 is built on THAW's formats, so [thug2-thp8-level-converter](https://github.com/CanuckAussieKev/thug2-thp8-level-converter) (and through it Proving Ground's) reads its node arrays, level scripts and node flags with `thaw/`; the content pipeline's THAW BMX tools read THAW's files with it too.
 
@@ -58,4 +59,4 @@ Checks: `npm run typecheck`, `npm run lint`, `npm test` (the tests that need a g
 
 ## Versions
 
-Releases are tagged `v<major>.<minor>.<patch>`; this is `v1.0.0`. The repositories that use it pin the tagged commit.
+Releases are tagged `v<major>.<minor>.<patch>`; this is `v1.1.0` (THUGPRO's profile from thug2-thugpro-compat; core v2.0.0). The repositories that use it pin the tagged commit.

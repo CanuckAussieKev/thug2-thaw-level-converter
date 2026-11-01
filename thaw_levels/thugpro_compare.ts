@@ -15,26 +15,10 @@
 //
 //   node thaw_levels/thugpro_compare.ts [levels...] [--thug2 C:\Games\THUG2-1] [--thugpro <dir>] [--json out]
 //   node thaw_levels/thugpro_compare.ts --extract-thugpro [--thugpro <dir>] [--thaw C:\Games\THAW]
-//     (TP-4: rewrites thug2-level-converter-core/compat/thugpro/thaw_levels.json `spawns` / `spawns_not_applied` - extractSpawns)
+//     (TP-4: rewrites thug2-thugpro-compat/thugpro/thaw_levels.json `spawns` / `spawns_not_applied` - extractSpawns)
 
 import * as fs from "node:fs";
 import { parseArgs } from "node:util";
-import * as compat from "thug2-level-converter-core/compat/compat.ts";
-import {
-    CTF_NAMES,
-    compactJson,
-    isCrown,
-    isMpRestart,
-    isName,
-    maxDiff,
-    nameOf,
-    nodeArray,
-    type Placed,
-    position,
-    sameSequence,
-    sequence,
-    TOLERANCE,
-} from "thug2-level-converter-core/compat/thugpro_nodes.ts";
 import * as colCheck from "thug2-level-converter-core/level_port/col_check.ts";
 import * as pedsCars from "thug2-level-converter-core/level_port/peds_cars.ts";
 import * as prx from "thug2-level-converter-core/level_port/prx.ts";
@@ -57,6 +41,22 @@ import {
     runMain,
     writeTextPy,
 } from "thug2-level-converter-core/lib/py.ts";
+import * as compat from "thug2-thugpro-compat/profile.ts";
+import {
+    CTF_NAMES,
+    compactJson,
+    isCrown,
+    isMpRestart,
+    isName,
+    maxDiff,
+    nameOf,
+    nodeArray,
+    type Placed,
+    position,
+    sameSequence,
+    sequence,
+    TOLERANCE,
+} from "thug2-thugpro-compat/thugpro_nodes.ts";
 import * as thaw from "../thaw/thaw.ts";
 import {
     COMPAT,
@@ -89,10 +89,10 @@ export {
     sameSequence,
     sequence,
     TOLERANCE,
-}; // (compat/thugpro_nodes.ts since the split)
+}; // (thug2-thugpro-compat's thugpro_nodes.ts since the split)
 
 // THUGPRO's names for the levels it renamed (its data\pre file names; the others are the zone's): to find its files.
-const THUGPRO_NAMES = COMPAT.levelNames; // (thug2-level-converter-core/compat/thugpro/thaw_levels.json)
+const THUGPRO_NAMES = COMPAT.levelNames; // (thug2-thugpro-compat/thugpro/thaw_levels.json)
 const DEFAULT_THUGPRO = pyJoin(process.env.LOCALAPPDATA ?? "", "THUG Pro");
 const prxFile = (folder: string, wanted: string): string | null => findPath(folder, "data", "pre", wanted);
 
@@ -230,7 +230,7 @@ const EDIT_NOTES = {
         "positions: THAW's frame); applied by thugpro_edits.ts",
 };
 
-export const PROFILE_FILE = compat.profileFile("thaw_levels"); // (thug2-level-converter-core's compat/thugpro)
+export const PROFILE_FILE = compat.profileFile("thaw_levels"); // (thug2-thugpro-compat's thugpro/)
 // A restart's network types (THUG2's: what a network game spawns at - nodes.NET_RESTART_TYPES).
 const NET_TYPES = new Set(["multiplayer", "horse", "ctf", "ctf_1", "ctf_2", "team"]);
 const MOVED = 0.1; // units: a place further than this from THAW's (in the same frame) is THUGPRO's hand move

@@ -57,7 +57,7 @@ test("frames: whole sixteenths, BSP splits moved, level names", () => {
     assert.equal(tree.kind === "split" && tree.point, 120);
     assert.equal(levelName("Z_MA"), "z_ma");
     assert.equal(levelName("Z_MA", true), "thaw_ma");
-    assert.equal(levelName("Z_CH"), "skatepark"); // (THUGPRO's name: thug2-level-converter-core/compat/thugpro, TP-1)
+    assert.equal(levelName("Z_CH"), "skatepark"); // (THUGPRO's name: thug2-thugpro-compat/thugpro, TP-1)
 });
 
 test("THAW script tokens: 0x4A inline structures, statements", () => {
