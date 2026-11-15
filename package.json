@@ -1,6 +1,6 @@
 {
   "name": "thug2-thaw-level-converter",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "private": true,
   "type": "module",
   "description": "THUG2 THAW Level Converter: Tony Hawk's American Wasteland (PC) levels converted to Tony Hawk's Underground 2's formats.",
@@ -44,8 +44,8 @@
     "test": "node --test \"**/*.test.ts\""
   },
   "dependencies": {
-    "thug2-level-converter-core": "git+https://git@github.com/CanuckAussieKev/thug2-level-converter-core.git#0295b8c7ae3546a31e000c9988b23f8f6c143615",
-    "thug2-thugpro-compat": "git+https://git@github.com/CanuckAussieKev/thug2-thugpro-compat.git#8a66ba9485b0c319dd46ca1251058b3bb6ca4f5b"
+    "thug2-level-converter-core": "git+https://git@github.com/CanuckAussieKev/thug2-level-converter-core.git#40426dd47f9ab7ee93cd35e3c37996c5f33d620e",
+    "thug2-thugpro-compat": "git+https://git@github.com/CanuckAussieKev/thug2-thugpro-compat.git#2a0c2df40a3c008042fb34b6c2764fbdede1daab"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
